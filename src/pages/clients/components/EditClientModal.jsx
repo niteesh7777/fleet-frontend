@@ -1,0 +1,190 @@
+import { useState } from "react";
+
+export default function EditClientModal({ open, onClose, client, onSubmit }) {
+  if (!open || !client) return null;
+
+  // Build the initial form from client
+  const buildInitial = () => ({
+    name: client.name || "",
+    email: client.email || "",
+    phone: client.phone || "",
+    street: client.address?.street || "",
+    city: client.address?.city || "",
+    state: client.address?.state || "",
+    pincode: client.address?.pincode || "",
+    gstNumber: client.gstNumber || "",
+    contactPersonName: client.contactPerson?.name || "",
+    contactPersonPhone: client.contactPerson?.phone || "",
+    contactPersonEmail: client.contactPerson?.email || "",
+    creditLimit: client.creditLimit || "",
+    paymentTerms: client.paymentTerms || "",
+  });
+
+  // Initialize state
+  const [form, setForm] = useState(buildInitial);
+
+  // Reset if client changes OR modal reopens with different data
+  if (form.name !== client.name && open) {
+    setForm(buildInitial());
+  }
+
+  const update = (key, val) => {
+    setForm((f) => ({ ...f, [key]: val }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      address: {
+        street: form.street,
+        city: form.city,
+        state: form.state,
+        pincode: form.pincode,
+      },
+      gstNumber: form.gstNumber,
+      contactPerson: {
+        name: form.contactPersonName,
+        phone: form.contactPersonPhone,
+        email: form.contactPersonEmail,
+      },
+      creditLimit: Number(form.creditLimit),
+      paymentTerms: form.paymentTerms,
+    };
+
+    onSubmit(client._id, payload);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-[#1A1A1A] w-full max-w-2xl rounded-xl p-6 border border-gray-800">
+        <h2 className="text-xl text-white font-semibold mb-4">
+          Edit Client — {client.name}
+        </h2>
+
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          {/* Basic Fields */}
+          <input
+            className="input"
+            placeholder="Name"
+            value={form.name}
+            onChange={(e) => update("name", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="Phone"
+            value={form.phone}
+            onChange={(e) => update("phone", e.target.value)}
+          />
+
+          {/* Address */}
+          <input
+            className="input"
+            placeholder="Street"
+            value={form.street}
+            onChange={(e) => update("street", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="City"
+            value={form.city}
+            onChange={(e) => update("city", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="State"
+            value={form.state}
+            onChange={(e) => update("state", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="Pincode"
+            value={form.pincode}
+            onChange={(e) => update("pincode", e.target.value)}
+          />
+
+          {/* GST */}
+          <input
+            className="input"
+            placeholder="GST Number"
+            value={form.gstNumber}
+            onChange={(e) => update("gstNumber", e.target.value)}
+          />
+
+          {/* Contact Person */}
+          <input
+            className="input"
+            placeholder="Contact Person Name"
+            value={form.contactPersonName}
+            onChange={(e) => update("contactPersonName", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="Contact Person Phone"
+            value={form.contactPersonPhone}
+            onChange={(e) => update("contactPersonPhone", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="Contact Person Email"
+            value={form.contactPersonEmail}
+            onChange={(e) => update("contactPersonEmail", e.target.value)}
+          />
+
+          {/* Financial */}
+          <input
+            className="input"
+            placeholder="Credit Limit"
+            value={form.creditLimit}
+            onChange={(e) => update("creditLimit", e.target.value)}
+          />
+
+          <input
+            className="input"
+            placeholder="Payment Terms"
+            value={form.paymentTerms}
+            onChange={(e) => update("paymentTerms", e.target.value)}
+          />
+
+          {/* Buttons */}
+          <div className="col-span-2 flex justify-end gap-3 mt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+            >
+              Update Client
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
