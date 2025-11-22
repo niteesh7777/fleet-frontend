@@ -1,10 +1,14 @@
 import { useState } from "react";
 import useDrivers from "./hooks/useDrivers";
+import { FiPlus, FiSearch } from "react-icons/fi";
 
 import DriversTable from "./components/DriversTable";
 import AddDriverModal from "./components/AddDriverModal";
 import EditDriverModal from "./components/EditDriverModal";
 import DeleteDriverModal from "./components/DeleteDriverModal";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 
 export default function Drivers() {
   const { drivers, loading, createDriver, updateDriver, deleteDriver } =
@@ -29,27 +33,28 @@ export default function Drivers() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-6">Drivers</h1>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">Drivers</h1>
 
-      <div className="flex justify-between mb-4">
-        <button
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+        <Button
           onClick={() => setShowAdd(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          icon={<FiPlus size={18} />}
         >
-          + Add Driver
-        </button>
+          Add Driver
+        </Button>
+
+        <div className="relative flex-1 max-w-md">
+          <Input
+            placeholder="Search drivers..."
+            icon={<FiSearch size={18} />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
-      <input
-        type="text"
-        placeholder="Search drivers..."
-        className="w-full mb-4 bg-[#1A1A1A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
       {loading ? (
-        <p className="text-gray-400">Loading...</p>
+        <LoadingSkeleton type="table" count={5} />
       ) : (
         <DriversTable
           drivers={filtered}

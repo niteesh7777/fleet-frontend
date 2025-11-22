@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import useTripLookups from "../hooks/useTripLookups";
+import Modal from "../../../components/ui/Modal";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
 
 export default function AddTripModal({ open, onClose, onSubmit }) {
   const { drivers, vehicles, clients, fetchAll } = useTripLookups();
@@ -31,19 +34,16 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
     onClose();
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-      <div className="bg-[#1A1A1A] w-full max-w-lg rounded-xl p-6 border border-gray-800">
-        <h2 className="text-xl text-white font-semibold mb-4">Add Trip</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Client */}
+    <Modal isOpen={open} onClose={onClose} title="Add Trip" className="max-w-lg">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Client */}
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Client</label>
           <select
             value={form.clientId}
             onChange={(e) => update("clientId", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
           >
             <option value="">Select Client</option>
             {clients.map((c) => (
@@ -52,12 +52,15 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
               </option>
             ))}
           </select>
+        </div>
 
-          {/* Driver */}
+        {/* Driver */}
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Driver</label>
           <select
             value={form.driverId}
             onChange={(e) => update("driverId", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
           >
             <option value="">Select Driver</option>
             {drivers.map((d) => (
@@ -66,12 +69,15 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
               </option>
             ))}
           </select>
+        </div>
 
-          {/* Vehicle */}
+        {/* Vehicle */}
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Vehicle</label>
           <select
             value={form.vehicleId}
             onChange={(e) => update("vehicleId", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
           >
             <option value="">Select Vehicle</option>
             {vehicles.map((v) => (
@@ -80,66 +86,63 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
               </option>
             ))}
           </select>
+        </div>
 
-          {/* Start & End */}
-          <input
-            type="text"
-            placeholder="Start Location"
-            value={form.startLocation}
-            onChange={(e) => update("startLocation", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-          />
+        {/* Start & End */}
+        <Input
+          placeholder="Start Location"
+          value={form.startLocation}
+          onChange={(e) => update("startLocation", e.target.value)}
+        />
 
-          <input
-            type="text"
-            placeholder="End Location"
-            value={form.endLocation}
-            onChange={(e) => update("endLocation", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-          />
+        <Input
+          placeholder="End Location"
+          value={form.endLocation}
+          onChange={(e) => update("endLocation", e.target.value)}
+        />
 
-          {/* Amounts */}
-          <input
-            type="number"
-            placeholder="Total Amount"
-            value={form.totalAmount}
-            onChange={(e) => update("totalAmount", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-          />
+        {/* Amounts */}
+        <Input
+          type="number"
+          placeholder="Total Amount"
+          value={form.totalAmount}
+          onChange={(e) => update("totalAmount", e.target.value)}
+        />
 
-          <input
-            type="number"
-            placeholder="Advance Payment"
-            value={form.advancePayment}
-            onChange={(e) => update("advancePayment", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-          />
+        <Input
+          type="number"
+          placeholder="Advance Payment"
+          value={form.advancePayment}
+          onChange={(e) => update("advancePayment", e.target.value)}
+        />
 
-          {/* Status */}
+        {/* Status */}
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Status</label>
           <select
             value={form.status}
             onChange={(e) => update("status", e.target.value)}
-            className="w-full bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
           >
             <option value="scheduled">Scheduled</option>
             <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
+        </div>
 
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-600 rounded"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 rounded">
-              Add Trip
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button type="submit">
+            Add Trip
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

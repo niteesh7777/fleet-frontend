@@ -1,4 +1,7 @@
 import { useState } from "react";
+import Modal from "../../../components/ui/Modal";
+import Input from "../../../components/ui/Input";
+import Button from "../../../components/ui/Button";
 
 export default function AddDriverModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState({
@@ -18,58 +21,53 @@ export default function AddDriverModal({ open, onClose, onSubmit }) {
     onSubmit(form);
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-      <div className="bg-[#1A1A1A] p-6 rounded-lg border border-gray-700 w-full max-w-lg">
-        <h2 className="text-xl text-white font-semibold mb-4">Add Driver</h2>
+    <Modal isOpen={open} onClose={onClose} title="Add Driver">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {["name", "email", "password", "licenseNo", "phone", "address"].map(
+          (field) => (
+            <div key={field}>
+              <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block capitalize">
+                {field}
+              </label>
+              <Input
+                type={field === "password" ? "password" : "text"}
+                name={field}
+                value={form[field]}
+                onChange={update}
+              />
+            </div>
+          )
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {["name", "email", "password", "licenseNo", "phone", "address"].map(
-            (field) => (
-              <div key={field}>
-                <label className="text-gray-300 capitalize">{field}</label>
-                <input
-                  type={field === "password" ? "password" : "text"}
-                  name={field}
-                  value={form[field]}
-                  onChange={update}
-                  className="w-full mt-1 bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-                />
-              </div>
-            )
-          )}
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Experience (years)
+          </label>
+          <Input
+            type="number"
+            name="experienceYears"
+            value={form.experienceYears}
+            onChange={update}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Experience (years)</label>
-            <input
-              type="number"
-              name="experienceYears"
-              value={form.experienceYears}
-              onChange={update}
-              className="w-full mt-1 bg-[#222] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-            />
-          </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              className="px-4 py-2 bg-gray-600 rounded-lg"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-
-            <button
-              className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700"
-              type="submit"
-            >
-              Add Driver
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <Button
+            type="submit"
+          >
+            Add Driver
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

@@ -1,9 +1,14 @@
 import { useState } from "react";
 import useTrips from "./hooks/useTrips";
+import { FiPlus, FiSearch } from "react-icons/fi";
+
 import EditTripModal from "./components/EditTripModal";
 import TripsTable from "./components/TripsTable";
 import AddTripModal from "./components/AddTripModal";
 import DeleteTripModal from "./components/DeleteTripModal";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 
 export default function Trips() {
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useTrips();
@@ -58,27 +63,28 @@ export default function Trips() {
 
   return (
     <div>
-      <h1 className="text-3xl text-white font-bold mb-6">Trips</h1>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">Trips</h1>
 
-      <div className="flex justify-between mb-4">
-        <button
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+        <Button
           onClick={() => setShowAdd(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          icon={<FiPlus size={18} />}
         >
-          + Add Trip
-        </button>
+          Add Trip
+        </Button>
+
+        <div className="relative flex-1 max-w-md">
+          <Input
+            placeholder="Search trips..."
+            icon={<FiSearch size={18} />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* Search */}
-      <input
-        className="w-full bg-[#1A1A1A] border border-gray-700 text-gray-200 px-3 py-2 rounded mb-4"
-        placeholder="Search trips..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
       {loading ? (
-        <p className="text-gray-400">Loading trips...</p>
+        <LoadingSkeleton type="table" count={5} />
       ) : (
         <TripsTable
           trips={filtered}

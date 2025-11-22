@@ -10,9 +10,9 @@ export default function useTripLookups() {
   const fetchAll = async () => {
     try {
       const [dRes, vRes, cRes] = await Promise.all([
-        api.get("/v1/drivers"),
-        api.get("/v1/vehicles"),
-        api.get("/v1/clients"),
+        api.get("/drivers"),
+        api.get("/vehicles"),
+        api.get("/clients"),
       ]);
 
       setDrivers(dRes.data?.data?.drivers || []);

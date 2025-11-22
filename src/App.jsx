@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import DashboardLayout from "./layout/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
@@ -12,6 +12,7 @@ function App() {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
 
       {/* Protected dashboard layout */}

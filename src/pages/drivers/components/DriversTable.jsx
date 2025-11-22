@@ -1,80 +1,81 @@
+import Card from "../../../components/ui/Card";
+import StatusBadge from "../../../components/ui/StatusBadge";
+import Button from "../../../components/ui/Button";
+
 export default function DriversTable({ drivers, onEdit, onDelete }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-800">
-      <table className="w-full text-left text-gray-300">
-        <thead className="bg-[#1A1A1A]">
-          <tr>
-            <th className="px-4 py-3 border-b border-gray-800">#</th>
-            <th className="px-4 py-3 border-b border-gray-800">Name</th>
-            <th className="px-4 py-3 border-b border-gray-800">Email</th>
-            <th className="px-4 py-3 border-b border-gray-800">Phone</th>
-            <th className="px-4 py-3 border-b border-gray-800">License No</th>
-            <th className="px-4 py-3 border-b border-gray-800">Exp</th>
-            <th className="px-4 py-3 border-b border-gray-800">Status</th>
-            <th className="px-4 py-3 border-b border-gray-800">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {drivers.length === 0 ? (
+    <Card className="overflow-hidden p-0">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-[var(--bg-secondary)]">
             <tr>
-              <td colSpan="8" className="py-4 text-center text-gray-500">
-                No drivers found.
-              </td>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">#</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Name</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Email</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Phone</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">License No</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Exp</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Status</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Actions</th>
             </tr>
-          ) : (
-            drivers.map((d, i) => (
-              <tr key={d._id} className="hover:bg-[#222] transition">
-                <td className="px-4 py-3 border-b border-gray-800">{i + 1}</td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {d.user?.name}
-                </td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {d.user?.email}
-                </td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {d.contact.phone}
-                </td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {d.licenseNo}
-                </td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {d.experienceYears}
-                </td>
+          </thead>
 
-                <td className="px-4 py-3 border-b border-gray-800">
-                  <span
-                    className={`px-2 py-1 rounded text-sm ${
-                      d.status === "active"
-                        ? "bg-green-700"
-                        : d.status === "on-trip"
-                        ? "bg-yellow-600"
-                        : "bg-gray-600"
-                    }`}
-                  >
-                    {d.status}
-                  </span>
-                </td>
-
-                <td className="px-4 py-3 border-b border-gray-800">
-                  <button
-                    className="text-blue-400 hover:text-blue-500 mr-3"
-                    onClick={() => onEdit(d)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-400 hover:text-red-500"
-                    onClick={() => onDelete(d)}
-                  >
-                    Delete
-                  </button>
+          <tbody className="divide-y divide-[var(--border-primary)]">
+            {drivers.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="py-8 text-center text-[var(--text-tertiary)]">
+                  No drivers found.
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ) : (
+              drivers.map((d, i) => (
+                <tr key={d._id} className="table-row-hover transition-colors">
+                  <td className="px-4 py-4 text-sm text-[var(--text-tertiary)]">{i + 1}</td>
+                  <td className="px-4 py-4 font-medium text-[var(--text-primary)]">
+                    {d.user?.name}
+                  </td>
+                  <td className="px-4 py-4 text-[var(--text-secondary)]">
+                    {d.user?.email}
+                  </td>
+                  <td className="px-4 py-4 text-[var(--text-secondary)]">
+                    {d.contact.phone}
+                  </td>
+                  <td className="px-4 py-4 font-mono text-sm text-[var(--text-primary)]">
+                    {d.licenseNo}
+                  </td>
+                  <td className="px-4 py-4 text-[var(--text-secondary)]">
+                    {d.experienceYears} yrs
+                  </td>
+
+                  <td className="px-4 py-4">
+                    <StatusBadge status={d.status} />
+                  </td>
+
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onEdit(d)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-[var(--danger)] hover:text-[var(--danger)] hover:bg-[var(--danger-light)]"
+                        onClick={() => onDelete(d)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 }

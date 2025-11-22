@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axiosClient";
 import toast from "react-hot-toast";
+import StatusBadge from "../../components/ui/StatusBadge";
+import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
+import EmptyState from "../../components/ui/EmptyState";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Modal from "../../components/ui/Modal";
+import Card from "../../components/ui/Card";
+import { FiPlus, FiSearch } from "react-icons/fi";
 
 export default function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
@@ -46,28 +54,38 @@ export default function Vehicles() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-6">Vehicles</h1>
-      <div className="flex justify-between mb-4">
-        <button
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded cursor-pointer"
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">Vehicles</h1>
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+        <Button
           onClick={() => setShowModal(true)}
+          icon={<FiPlus size={18} />}
         >
-          + Add Vehicle
-        </button>
+          Add Vehicle
+        </Button>
 
-        <div>
-          <input
-            type="text"
+        <div className="relative flex-1 max-w-md">
+          <Input
             placeholder="Search vehicles..."
-            className="w-full bg-[#1A1A1A] border border-gray-700 text-gray-200 rounded px-3 py-2 
-               focus:outline-none focus:ring-2 focus:ring-blue-600"
+            icon={<FiSearch size={18} />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
       {loading ? (
-        <p className="text-gray-400">Loading vehicles...</p>
+        <LoadingSkeleton type="table" count={5} />
+      ) : filteredVehicles.length === 0 ? (
+        <EmptyState
+          title="No vehicles found"
+          description={search ? "Try adjusting your search terms" : "Get started by adding your first vehicle"}
+          action={
+            !search && (
+              <Button onClick={() => setShowModal(true)} icon={<FiPlus size={18} />}>
+                Add Vehicle
+              </Button>
+            )
+          }
+        />
       ) : (
         <VehiclesTable
           vehicles={filteredVehicles}
@@ -104,69 +122,73 @@ export default function Vehicles() {
 
 function VehiclesTable({ vehicles, onEdit, onDelete }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-800">
-      <table className="w-full text-left text-gray-300">
-        <thead className="bg-[#1A1A1A]">
-          <tr>
-            <th className="px-4 py-3 border-b border-gray-800">#</th>
-            <th className="px-4 py-3 border-b border-gray-800">Vehicle No</th>
-            <th className="px-4 py-3 border-b border-gray-800">Model</th>
-            <th className="px-4 py-3 border-b border-gray-800">Type</th>
-            <th className="px-4 py-3 border-b border-gray-800">
-              Capacity (Kg)
-            </th>
-            <th className="px-4 py-3 border-b border-gray-800">
-              Insurance Expiry
-            </th>
-            <th className="px-4 py-3 border-b border-gray-800">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {vehicles.length === 0 ? (
+    <Card className="overflow-hidden p-0">
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-[var(--bg-secondary)]">
             <tr>
-              <td colSpan="7" className="text-center py-4 text-gray-500">
-                No vehicles found.
-              </td>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">#</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Vehicle No</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Model</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Type</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Status</th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                Capacity (Kg)
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                Insurance Expiry
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Actions</th>
             </tr>
-          ) : (
-            vehicles.map((v, i) => (
-              <tr key={v._id} className="hover:bg-[#1E1E1E] transition">
-                <td className="px-4 py-3 border-b border-gray-800">{i + 1}</td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {v.vehicleNo}
+          </thead>
+
+          <tbody className="divide-y divide-[var(--border-primary)]">
+            {vehicles.map((v, i) => (
+              <tr key={v._id} className="table-row-hover transition-colors">
+                <td className="px-4 py-4 text-sm text-[var(--text-tertiary)]">{i + 1}</td>
+                <td className="px-4 py-4">
+                  <span className="font-mono font-semibold text-[var(--text-primary)]">
+                    {v.vehicleNo}
+                  </span>
                 </td>
-                <td className="px-4 py-3 border-b border-gray-800">
+                <td className="px-4 py-4 text-[var(--text-primary)]">
                   {v.model}
                 </td>
-                <td className="px-4 py-3 border-b border-gray-800">{v.type}</td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  {v.capacityKg}
+                <td className="px-4 py-4 text-[var(--text-secondary)]">{v.type}</td>
+                <td className="px-4 py-4">
+                  <StatusBadge status={v.status} />
                 </td>
-                <td className="px-4 py-3 border-b border-gray-800">
+                <td className="px-4 py-4 text-[var(--text-primary)] font-medium">
+                  {v.capacityKg.toLocaleString()}
+                </td>
+                <td className="px-4 py-4 text-[var(--text-secondary)] text-sm">
                   {new Date(v.insurance?.expiryDate).toLocaleDateString()}
                 </td>
-                <td className="px-4 py-3 border-b border-gray-800">
-                  <button
-                    className="text-blue-400 hover:text-blue-500 mr-3 cursor-pointer"
-                    onClick={() => onEdit(v)}
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    className="text-red-400 hover:text-red-500 cursor-pointer"
-                    onClick={() => onDelete(v)}
-                  >
-                    Delete
-                  </button>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onEdit(v)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[var(--danger)] hover:text-[var(--danger)] hover:bg-[var(--danger-light)]"
+                      onClick={() => onDelete(v)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 }
 
@@ -220,96 +242,82 @@ function AddVehicleModal({ open, onClose, onSuccess }) {
     }
   };
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#1A1A1A] p-6 rounded-xl w-full max-w-lg border border-gray-800">
-        <h2 className="text-xl font-semibold mb-4 text-white">
-          Add New Vehicle
-        </h2>
+    <Modal isOpen={open} onClose={onClose} title="Add New Vehicle">
+      <form className="space-y-4" onSubmit={handleCreate}>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Vehicle Number</label>
+          <Input
+            value={vehicleNo}
+            onChange={(e) => setVehicleNo(e.target.value)}
+            placeholder="e.g. KA-01-AB-1234"
+          />
+        </div>
 
-        <form className="space-y-4" onSubmit={handleCreate}>
-          <div>
-            <label className="text-gray-300">Vehicle Number</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 rounded px-3 py-2"
-              value={vehicleNo}
-              onChange={(e) => setVehicleNo(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Model</label>
+          <Input
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            placeholder="e.g. Tata Ace"
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Model</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 rounded px-3 py-2"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Type</label>
+          <Input
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            placeholder="e.g. Truck"
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Type</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 rounded px-3 py-2"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Capacity (Kg)</label>
+          <Input
+            type="number"
+            value={capacityKg}
+            onChange={(e) => setCapacityKg(e.target.value)}
+            placeholder="e.g. 1000"
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Capacity (Kg)</label>
-            <input
-              type="number"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 rounded px-3 py-2"
-              value={capacityKg}
-              onChange={(e) => setCapacityKg(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Insurance Policy Number</label>
+          <Input
+            value={policyNumber}
+            onChange={(e) => setPolicyNumber(e.target.value)}
+            placeholder="Policy Number"
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Insurance Policy Number</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 rounded px-3 py-2"
-              value={policyNumber}
-              onChange={(e) => setPolicyNumber(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Insurance Expiry Date</label>
+          <Input
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Insurance Expiry Date</label>
-            <input
-              type="date"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 rounded px-3 py-2"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-            />
-          </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700 cursor-pointer"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-            >
-              {loading ? "Adding..." : "Add Vehicle"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <Button
+            type="submit"
+            isLoading={loading}
+          >
+            Add Vehicle
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -369,94 +377,77 @@ function EditVehicleModal({ open, onClose, onSuccess, vehicle }) {
     }
   };
 
-  if (!open || !vehicle) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#1A1A1A] p-6 rounded-xl w-full max-w-lg border border-gray-800">
-        <h2 className="text-xl font-semibold mb-4 text-white">Edit Vehicle</h2>
+    <Modal isOpen={open} onClose={onClose} title="Edit Vehicle">
+      <form className="space-y-4" onSubmit={handleUpdate}>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Vehicle Number</label>
+          <Input
+            value={vehicleNo}
+            onChange={(e) => setVehicleNo(e.target.value)}
+          />
+        </div>
 
-        <form className="space-y-4" onSubmit={handleUpdate}>
-          <div>
-            <label className="text-gray-300">Vehicle Number</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-              value={vehicleNo}
-              onChange={(e) => setVehicleNo(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Model</label>
+          <Input
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Model</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Type</label>
+          <Input
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Type</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Capacity (Kg)</label>
+          <Input
+            type="number"
+            value={capacityKg}
+            onChange={(e) => setCapacityKg(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Capacity (Kg)</label>
-            <input
-              type="number"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-              value={capacityKg}
-              onChange={(e) => setCapacityKg(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Insurance Policy Number</label>
+          <Input
+            value={policyNumber}
+            onChange={(e) => setPolicyNumber(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Insurance Policy Number</label>
-            <input
-              type="text"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-              value={policyNumber}
-              onChange={(e) => setPolicyNumber(e.target.value)}
-            />
-          </div>
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Insurance Expiry Date</label>
+          <Input
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+          />
+        </div>
 
-          <div>
-            <label className="text-gray-300">Insurance Expiry Date</label>
-            <input
-              type="date"
-              className="w-full mt-1 bg-[#2A2A2A] border border-gray-700 text-gray-200 px-3 py-2 rounded"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-            />
-          </div>
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700 cursor-pointer"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 cursor-pointer"
-            >
-              {loading ? "Updating..." : "Update Vehicle"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          <Button
+            type="submit"
+            isLoading={loading}
+          >
+            Update Vehicle
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -480,40 +471,34 @@ function DeleteVehicleModal({ open, onClose, onSuccess, vehicle }) {
     }
   };
 
-  if (!open || !vehicle) return null;
+  if (!vehicle) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#1A1A1A] p-6 rounded-xl w-full max-w-md border border-gray-800">
-        <h2 className="text-xl font-semibold text-white mb-4">
-          Delete Vehicle
-        </h2>
+    <Modal isOpen={open} onClose={onClose} title="Delete Vehicle">
+      <p className="text-[var(--text-secondary)] mb-6">
+        Are you sure you want to delete{" "}
+        <span className="text-[var(--danger)] font-semibold">
+          {vehicle.vehicleNo}
+        </span>
+        ? This action cannot be undone.
+      </p>
 
-        <p className="text-gray-300 mb-6">
-          Are you sure you want to delete{" "}
-          <span className="text-red-400 font-semibold">
-            {vehicle.vehicleNo}
-          </span>
-          ? This action cannot be undone.
-        </p>
+      <div className="flex justify-end gap-3">
+        <Button
+          variant="ghost"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
 
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700 cursor-pointer"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={handleDelete}
-            disabled={loading}
-            className="px-4 py-2 bg-red-600 rounded hover:bg-red-700 cursor-pointer"
-          >
-            {loading ? "Deleting..." : "Delete"}
-          </button>
-        </div>
+        <Button
+          variant="danger"
+          onClick={handleDelete}
+          isLoading={loading}
+        >
+          Delete
+        </Button>
       </div>
-    </div>
+    </Modal>
   );
 }
