@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useTrips from "./hooks/useTrips";
 import { FiPlus, FiSearch } from "react-icons/fi";
+import { useAuthStore } from "../../store/authStore";
 
 import EditTripModal from "./components/EditTripModal";
 import TripsTable from "./components/TripsTable";
@@ -9,15 +10,27 @@ import DeleteTripModal from "./components/DeleteTripModal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
+import Modal from "../../components/ui/Modal";
+
+// Import new trip progress components
+import ProgressUpdateForm from "./components/ProgressUpdateForm";
+import StatusTimeline from "./components/StatusTimeline";
 
 export default function Trips() {
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useTrips();
+  const { user } = useAuthStore();
+  const isAdmin = user?.role === "admin";
 
   const [showEdit, setShowEdit] = useState(false);
   const [search, setSearch] = useState("");
   const [showAdd, setShowAdd] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
+
+  // Progress update states
+  const [progressModalOpen, setProgressModalOpen] = useState(false);
+  const [timelineModalOpen, setTimelineModalOpen] = useState(false);
+  const [tripForProgress, setTripForProgress] = useState(null);
 
   // FIX 1: Safe Filtering
   // Handle cases where client, driver, or vehicle might be null to avoid "undefined" in search
@@ -59,19 +72,40 @@ export default function Trips() {
     setShowEdit(false);
     setShowDelete(false);
     setSelectedTrip(null); // Clear selection on close
+    setProgressModalOpen(false);
+    setTimelineModalOpen(false);
+    setTripForProgress(null);
+  };
+
+  // Progress update handlers
+  const handleUpdateProgress = (trip) => {
+    setTripForProgress(trip);
+    setProgressModalOpen(true);
+  };
+
+  const handleViewTimeline = (trip) => {
+    setTripForProgress(trip);
+    setTimelineModalOpen(true);
+  };
+
+  const handleProgressSuccess = () => {
+    // Refresh trips data after progress update
+    // This will trigger useTrips to refetch data
+    closeModals();
   };
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">Trips</h1>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">
+        Trips
+      </h1>
 
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-        <Button
-          onClick={() => setShowAdd(true)}
-          icon={<FiPlus size={18} />}
-        >
-          Add Trip
-        </Button>
+        {isAdmin && (
+          <Button onClick={() => setShowAdd(true)} icon={<FiPlus size={18} />}>
+            Add Trip
+          </Button>
+        )}
 
         <div className="relative flex-1 max-w-md">
           <Input
@@ -96,6 +130,9 @@ export default function Trips() {
             setSelectedTrip(trip);
             setShowDelete(true);
           }}
+          onUpdateProgress={handleUpdateProgress}
+          onViewTimeline={handleViewTimeline}
+          onTripComplete={handleProgressSuccess}
         />
       )}
 
@@ -125,6 +162,31 @@ export default function Trips() {
           onSubmit={handleEditSubmit}
         />
       )}
+
+      {/* Progress Update Modal */}
+      <ProgressUpdateForm
+        isOpen={progressModalOpen}
+        onClose={() => setProgressModalOpen(false)}
+        trip={tripForProgress}
+        onSuccess={handleProgressSuccess}
+      />
+
+      {/* Timeline Modal */}
+      <Modal
+        isOpen={timelineModalOpen}
+        onClose={() => setTimelineModalOpen(false)}
+        title={`Trip Progress Timeline - ${
+          tripForProgress?.tripCode || "Trip"
+        }`}
+        size="large"
+      >
+        {tripForProgress && (
+          <StatusTimeline
+            trip={tripForProgress}
+            onRefresh={handleProgressSuccess}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

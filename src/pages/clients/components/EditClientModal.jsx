@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { validateClientForm } from "../../../utils/validation";
+import toast from "react-hot-toast";
 
 export default function EditClientModal({ open, onClose, client, onSubmit }) {
   if (!open || !client) return null;
@@ -34,6 +36,28 @@ export default function EditClientModal({ open, onClose, client, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Map form to match validation structure
+    const validationForm = {
+      name: form.name,
+      contactPersonName: form.contactPersonName,
+      contactPersonPhone: form.contactPersonPhone,
+      contactPersonEmail: form.contactPersonEmail,
+      street: form.street,
+      city: form.city,
+      state: form.state,
+      pincode: form.pincode,
+      gstNumber: form.gstNumber,
+      email: form.email,
+    };
+
+    // Validate form
+    const errors = validateClientForm(validationForm);
+    if (Object.keys(errors).length > 0) {
+      const errorMessages = Object.values(errors);
+      toast.error(errorMessages[0]); // Show first error
+      return;
+    }
 
     const payload = {
       name: form.name,

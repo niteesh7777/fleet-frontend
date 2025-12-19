@@ -1,11 +1,16 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
+import {
+  showNetworkError,
+  showServerError,
+  showUnauthorizedError,
+} from "../utils/toast";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
-  
+
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
@@ -24,12 +29,26 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Handle network errors
+    if (!error.response) {
+      showNetworkError();
+      return Promise.reject(error);
+    }
+
+    // Handle server errors (5xx)
+    if (error.response.status >= 500) {
+      showServerError();
+      return Promise.reject(error);
+    }
+
+    // Handle 401 unauthorized
     if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
     if (originalRequest._retry) {
       useAuthStore.getState().logout();
+      showUnauthorizedError();
       return Promise.reject(error);
     }
 
@@ -37,7 +56,7 @@ api.interceptors.response.use(
 
     try {
       const refreshResponse = await api.post("/auth/refresh");
-      const newAccessToken = refreshResponse.data.accessToken;
+      const newAccessToken = refreshResponse.data.data.accessToken; // ✅ Fixed: correct path
 
       useAuthStore.getState().setToken(newAccessToken);
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -45,6 +64,7 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       useAuthStore.getState().logout();
+      showUnauthorizedError();
       return Promise.reject(refreshError);
     }
   }

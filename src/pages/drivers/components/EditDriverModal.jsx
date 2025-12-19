@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
+import { validatePhone, validateRequired } from "../../../utils/validation";
+import toast from "react-hot-toast";
 
 export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
   const [form, setForm] = useState({
@@ -34,6 +36,19 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
 
     if (!driver) return;
 
+    // Validate
+    const licenseError = validateRequired(form.licenseNo, "License number");
+    const phoneError = validatePhone(form.phone);
+
+    if (licenseError) {
+      toast.error(licenseError);
+      return;
+    }
+    if (phoneError) {
+      toast.error(phoneError);
+      return;
+    }
+
     const payload = {
       licenseNo: form.licenseNo,
       contact: {
@@ -51,11 +66,17 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
   if (!driver) return null;
 
   return (
-    <Modal isOpen={open} onClose={onClose} title={`Edit Driver — ${driver.user?.name}`}>
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title={`Edit Driver — ${driver.user?.name}`}
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* License No */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">License Number</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            License Number
+          </label>
           <Input
             value={form.licenseNo}
             onChange={(e) => update("licenseNo", e.target.value)}
@@ -64,7 +85,9 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
 
         {/* Phone */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Phone</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Phone
+          </label>
           <Input
             value={form.phone}
             onChange={(e) => update("phone", e.target.value)}
@@ -73,7 +96,9 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
 
         {/* Address */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Address</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Address
+          </label>
           <Input
             value={form.address}
             onChange={(e) => update("address", e.target.value)}
@@ -82,7 +107,9 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
 
         {/* Experience */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Experience (years)</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Experience (years)
+          </label>
           <Input
             type="number"
             value={form.experienceYears}
@@ -92,7 +119,9 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
 
         {/* Status */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Status</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Status
+          </label>
           <select
             value={form.status}
             onChange={(e) => update("status", e.target.value)}
@@ -106,19 +135,11 @@ export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
 
         {/* Buttons */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
 
-          <Button
-            type="submit"
-          >
-            Update Driver
-          </Button>
+          <Button type="submit">Update Driver</Button>
         </div>
       </form>
     </Modal>

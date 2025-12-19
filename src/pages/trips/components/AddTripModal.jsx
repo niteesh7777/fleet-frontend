@@ -5,16 +5,17 @@ import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 
 export default function AddTripModal({ open, onClose, onSubmit }) {
-  const { drivers, vehicles, clients, fetchAll } = useTripLookups();
+  const { drivers, vehicles, clients, routes, fetchAll } = useTripLookups();
 
   const [form, setForm] = useState({
+    routeId: "", // ✅ ADD ROUTE SELECTION
     clientId: "",
-    driverId: "",
-    vehicleId: "",
-    startLocation: "",
-    endLocation: "",
-    totalAmount: "",
-    advancePayment: "",
+    driverIds: [], // ✅ SUPPORT MULTIPLE DRIVERS
+    vehicleIds: [], // ✅ SUPPORT MULTIPLE VEHICLES
+    goodsInfo: "", // ✅ ADD GOODS INFO
+    loadWeightKg: "", // ✅ ADD LOAD WEIGHT
+    tripCost: "", // ✅ AUTO-CALCULATED FROM ROUTE
+    startTime: "", // ✅ ADD START TIME
     status: "scheduled",
   });
 
@@ -24,22 +25,92 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
 
   const update = (key, val) => setForm((s) => ({ ...s, [key]: val }));
 
+  const handleRouteChange = (routeId) => {
+    const selectedRoute = routes.find((r) => r._id === routeId);
+    if (selectedRoute) {
+      // Auto-calculate cost based on route
+      const baseCost = selectedRoute.distanceKm * 25; // ₹25 per km
+      const tollsCost =
+        selectedRoute.tolls?.reduce((sum, toll) => sum + (toll.cost || 0), 0) ||
+        0;
+      const estimatedCost = baseCost + tollsCost;
+
+      setForm((prev) => ({
+        ...prev,
+        routeId,
+        tripCost: estimatedCost.toString(),
+      }));
+    } else {
+      update("routeId", routeId);
+    }
+  };
+
+  const generateTripCode = () => {
+    const prefix = "TRP";
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.random().toString(36).substr(2, 3).toUpperCase();
+    return `${prefix}_${timestamp}_${random}`;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({
-      ...form,
-      totalAmount: Number(form.totalAmount),
-      advancePayment: Number(form.advancePayment),
-    });
+    // Convert to backend schema format
+    const payload = {
+      tripCode: generateTripCode(),
+      routeId: form.routeId,
+      clientId: form.clientId,
+      vehicleIds: form.vehicleIds.length
+        ? form.vehicleIds
+        : [form.vehicleId].filter(Boolean),
+      driverIds: form.driverIds.length
+        ? form.driverIds
+        : [form.driverId].filter(Boolean),
+      goodsInfo: form.goodsInfo || "General cargo",
+      loadWeightKg: Number(form.loadWeightKg) || 0,
+      tripCost: Number(form.tripCost) || 0,
+      startTime: form.startTime
+        ? new Date(form.startTime).toISOString()
+        : new Date().toISOString(),
+      status: form.status,
+    };
+    onSubmit(payload);
     onClose();
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} title="Add Trip" className="max-w-lg">
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title="Add Trip"
+      className="max-w-lg"
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Route Selection */}
+        <div>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Route *
+          </label>
+          <select
+            value={form.routeId}
+            onChange={(e) => handleRouteChange(e.target.value)}
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+            required
+          >
+            <option value="">Select Route</option>
+            {routes.map((r) => (
+              <option key={r._id} value={r._id}>
+                {r.name} - {r.source?.name} → {r.destination?.name} (
+                {r.distanceKm}km)
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Client */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Client</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Client
+          </label>
           <select
             value={form.clientId}
             onChange={(e) => update("clientId", e.target.value)}
@@ -56,7 +127,9 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
 
         {/* Driver */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Driver</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Driver
+          </label>
           <select
             value={form.driverId}
             onChange={(e) => update("driverId", e.target.value)}
@@ -73,7 +146,9 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
 
         {/* Vehicle */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Vehicle</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Vehicle
+          </label>
           <select
             value={form.vehicleId}
             onChange={(e) => update("vehicleId", e.target.value)}
@@ -88,37 +163,48 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
           </select>
         </div>
 
-        {/* Start & End */}
+        {/* Goods Information */}
         <Input
-          placeholder="Start Location"
-          value={form.startLocation}
-          onChange={(e) => update("startLocation", e.target.value)}
+          placeholder="Goods Description (e.g., Electronics, Furniture)"
+          value={form.goodsInfo}
+          onChange={(e) => update("goodsInfo", e.target.value)}
+          required
         />
 
-        <Input
-          placeholder="End Location"
-          value={form.endLocation}
-          onChange={(e) => update("endLocation", e.target.value)}
-        />
-
-        {/* Amounts */}
+        {/* Load Weight */}
         <Input
           type="number"
-          placeholder="Total Amount"
-          value={form.totalAmount}
-          onChange={(e) => update("totalAmount", e.target.value)}
+          placeholder="Load Weight (kg)"
+          value={form.loadWeightKg}
+          onChange={(e) => update("loadWeightKg", e.target.value)}
+          min="0"
+          step="0.1"
         />
 
+        {/* Trip Cost (Auto-calculated from route) */}
         <Input
           type="number"
-          placeholder="Advance Payment"
-          value={form.advancePayment}
-          onChange={(e) => update("advancePayment", e.target.value)}
+          placeholder="Trip Cost (₹)"
+          value={form.tripCost}
+          onChange={(e) => update("tripCost", e.target.value)}
+          min="0"
+          step="0.01"
+          disabled={!!form.routeId}
+        />
+
+        {/* Start Time */}
+        <Input
+          type="datetime-local"
+          placeholder="Start Time"
+          value={form.startTime}
+          onChange={(e) => update("startTime", e.target.value)}
         />
 
         {/* Status */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Status</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Status
+          </label>
           <select
             value={form.status}
             onChange={(e) => update("status", e.target.value)}
@@ -131,16 +217,10 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">
-            Add Trip
-          </Button>
+          <Button type="submit">Add Trip</Button>
         </div>
       </form>
     </Modal>

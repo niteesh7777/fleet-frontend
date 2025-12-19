@@ -5,8 +5,10 @@ import { FiTrendingUp, FiTrendingDown } from "react-icons/fi";
 import api from "../../api/axiosClient";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 import Card from "../../components/ui/Card";
+import { useAuthStore } from "../../store/authStore";
 
 export default function Overview() {
+  const { user } = useAuthStore();
   const [stats, setStats] = useState({
     vehicles: 0,
     drivers: 0,
@@ -23,20 +25,33 @@ export default function Overview() {
     try {
       setLoading(true);
 
-      // Fetch all data in parallel
-      const [vehiclesRes, driversRes, tripsRes, clientsRes] = await Promise.all([
-        api.get("/vehicles"),
-        api.get("/drivers"),
-        api.get("/trips"),
-        api.get("/clients"),
-      ]);
+      if (user?.role === "admin") {
+        const [vehiclesRes, tripsRes, driversRes, clientsRes] =
+          await Promise.all([
+            api.get("/vehicles"),
+            api.get("/trips"),
+            api.get("/drivers"),
+            api.get("/clients"),
+          ]);
 
-      setStats({
-        vehicles: vehiclesRes.data.data?.vehicles?.length || 0,
-        drivers: driversRes.data.data?.drivers?.length || 0,
-        trips: tripsRes.data.data?.trips?.length || 0,
-        clients: clientsRes.data.data?.clients?.length || 0,
-      });
+        setStats({
+          vehicles: vehiclesRes.data.data?.vehicles?.length || 0,
+          drivers: driversRes.data.data?.drivers?.length || 0,
+          trips: tripsRes.data.data?.trips?.length || 0,
+          clients: clientsRes.data.data?.clients?.length || 0,
+        });
+      } else {
+        // Driver view - only fetch their own trips
+        const myTripsRes = await api.get("/trips/my");
+        const myTrips = myTripsRes.data.data?.trips || [];
+
+        setStats({
+          vehicles: 0, // Drivers don't see total vehicles
+          drivers: 0,
+          trips: myTrips.length,
+          clients: 0,
+        });
+      }
     } catch (err) {
       console.error("Failed to fetch stats:", err);
     } finally {
@@ -59,7 +74,7 @@ export default function Overview() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          Dashboard Overview
+          {user?.role === "admin" ? "Admin Dashboard" : "Driver Dashboard"}
         </h1>
         <p className="text-sm text-[var(--text-tertiary)]">
           Real-time fleet statistics
@@ -76,13 +91,15 @@ export default function Overview() {
           trend={{ value: 12, isPositive: true }}
         />
 
-        <DashboardCard
-          title="Total Drivers"
-          value={stats.drivers}
-          icon={<FaIdBadge size={28} />}
-          gradient="gradient-success"
-          trend={{ value: 8, isPositive: true }}
-        />
+        {user?.role === "admin" && (
+          <DashboardCard
+            title="Total Drivers"
+            value={stats.drivers}
+            icon={<FaIdBadge size={28} />}
+            gradient="gradient-success"
+            trend={{ value: 8, isPositive: true }}
+          />
+        )}
 
         <DashboardCard
           title="Active Trips"
@@ -92,13 +109,15 @@ export default function Overview() {
           trend={{ value: 5, isPositive: false }}
         />
 
-        <DashboardCard
-          title="Clients"
-          value={stats.clients}
-          icon={<FaUsers size={28} />}
-          gradient="gradient-purple"
-          trend={{ value: 15, isPositive: true }}
-        />
+        {user?.role === "admin" && (
+          <DashboardCard
+            title="Clients"
+            value={stats.clients}
+            icon={<FaUsers size={28} />}
+            gradient="gradient-purple"
+            trend={{ value: 15, isPositive: true }}
+          />
+        )}
       </div>
 
       {/* Quick Actions */}
@@ -118,11 +137,13 @@ export default function Overview() {
               href="/dashboard/trips"
               icon="🗺️"
             />
-            <QuickActionButton
-              label="Add Driver"
-              href="/dashboard/drivers"
-              icon="👤"
-            />
+            {user?.role === "admin" && (
+              <QuickActionButton
+                label="Add Driver"
+                href="/dashboard/drivers"
+                icon="👤"
+              />
+            )}
           </div>
         </Card>
 
@@ -133,7 +154,11 @@ export default function Overview() {
           <div className="space-y-3">
             <StatusItem label="API Status" status="Operational" isGood={true} />
             <StatusItem label="Database" status="Connected" isGood={true} />
-            <StatusItem label="Last Sync" status="2 minutes ago" isGood={true} />
+            <StatusItem
+              label="Last Sync"
+              status="2 minutes ago"
+              isGood={true}
+            />
           </div>
         </Card>
       </div>
@@ -206,8 +231,9 @@ function StatusItem({ label, status, isGood }) {
       <span className="text-sm text-[var(--text-secondary)]">{label}</span>
       <div className="flex items-center gap-2">
         <span
-          className={`w-2 h-2 rounded-full ${isGood ? "bg-[var(--success)]" : "bg-[var(--danger)]"
-            }`}
+          className={`w-2 h-2 rounded-full ${
+            isGood ? "bg-[var(--success)]" : "bg-[var(--danger)]"
+          }`}
         ></span>
         <span className="text-sm font-medium text-[var(--text-primary)]">
           {status}
@@ -216,4 +242,3 @@ function StatusItem({ label, status, isGood }) {
     </div>
   );
 }
-

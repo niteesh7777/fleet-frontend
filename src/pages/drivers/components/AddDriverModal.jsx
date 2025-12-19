@@ -2,6 +2,8 @@ import { useState } from "react";
 import Modal from "../../../components/ui/Modal";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
+import { validateDriverForm } from "../../../utils/validation";
+import toast from "react-hot-toast";
 
 export default function AddDriverModal({ open, onClose, onSubmit }) {
   const [form, setForm] = useState({
@@ -18,6 +20,15 @@ export default function AddDriverModal({ open, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Validate form
+    const errors = validateDriverForm(form);
+    if (Object.keys(errors).length > 0) {
+      const errorMessages = Object.values(errors);
+      toast.error(errorMessages[0]); // Show first error
+      return;
+    }
+
     onSubmit(form);
   };
 
@@ -53,19 +64,11 @@ export default function AddDriverModal({ open, onClose, onSubmit }) {
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
 
-          <Button
-            type="submit"
-          >
-            Add Driver
-          </Button>
+          <Button type="submit">Add Driver</Button>
         </div>
       </form>
     </Modal>

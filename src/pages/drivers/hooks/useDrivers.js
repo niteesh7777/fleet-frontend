@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import api from "../../../api/axiosClient";
-import toast from "react-hot-toast";
+import {
+  showCreateSuccess,
+  showUpdateSuccess,
+  showDeleteSuccess,
+  showCreateError,
+  showUpdateError,
+  showDeleteError,
+  showFetchError,
+} from "../../../utils/toast";
 
 export default function useDrivers() {
   const [drivers, setDrivers] = useState([]);
@@ -12,34 +20,55 @@ export default function useDrivers() {
       const res = await api.get("/drivers");
       setDrivers(res.data?.data?.drivers || []);
     } catch (err) {
-      toast.error("Failed to load drivers");
+      showFetchError("drivers", err);
+      console.error("Fetch drivers error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const createDriver = async (payload) => {
-    await api.post("/admin/drivers", payload);
-    toast.success("Driver created successfully!");
-    fetchDrivers();
+    try {
+      await api.post("/admin/drivers", payload);
+      showCreateSuccess("Driver");
+      fetchDrivers();
+    } catch (err) {
+      showCreateError("Driver", err);
+      throw err;
+    }
   };
 
   const updateDriver = async (id, payload) => {
-    await api.put(`/drivers/${id}`, payload);
-    toast.success("Driver updated successfully!");
-    fetchDrivers();
+    try {
+      await api.put(`/drivers/${id}`, payload);
+      showUpdateSuccess("Driver");
+      fetchDrivers();
+    } catch (err) {
+      showUpdateError("Driver", err);
+      throw err;
+    }
   };
 
   const deleteDriver = async (id) => {
-    await api.delete(`/drivers/${id}`);
-    toast.success("Driver deleted successfully!");
-    fetchDrivers();
+    try {
+      await api.delete(`/drivers/${id}`);
+      showDeleteSuccess("Driver");
+      fetchDrivers();
+    } catch (err) {
+      showDeleteError("Driver", err);
+      throw err;
+    }
   };
 
   const deactivateDriver = async (id, reason) => {
-    await api.put(`/drivers/${id}/deactivate`, { reason });
-    toast.success("Driver deactivated!");
-    fetchDrivers();
+    try {
+      await api.put(`/drivers/${id}/deactivate`, { reason });
+      showUpdateSuccess("Driver status");
+      fetchDrivers();
+    } catch (err) {
+      showUpdateError("Driver status", err);
+      throw err;
+    }
   };
 
   useEffect(() => {

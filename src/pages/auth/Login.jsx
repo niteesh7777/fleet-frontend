@@ -1,9 +1,15 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
 import api from "../../api/axiosClient";
 import { useAuthStore } from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
+import {
+  showLoginSuccess,
+  showLoginError,
+  showValidationError,
+  showLoading,
+  dismissToast,
+} from "../../utils/toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,12 +23,15 @@ export default function Login() {
     e.preventDefault();
 
     if (!email || !password) {
-      toast.error("Please fill out all fields.");
+      showValidationError(["Please fill out all fields"]);
       return;
     }
 
+    let loadingToast;
+
     try {
       setLoading(true);
+      loadingToast = showLoading("Signing you in...");
 
       // USE BASE URL ✔
       const res = await api.post("/auth/login", {
@@ -39,13 +48,15 @@ export default function Login() {
       setToken(accessToken);
       setUser(user);
 
-      toast.success("Login successful!");
+      dismissToast(loadingToast);
+      showLoginSuccess();
 
       // REDIRECT ✔
       navigate("/dashboard");
     } catch (err) {
+      if (loadingToast) dismissToast(loadingToast);
       console.log(err.response?.data);
-      toast.error(err.response?.data?.message || "Invalid credentials");
+      showLoginError(err);
     } finally {
       setLoading(false);
     }
@@ -145,4 +156,3 @@ export default function Login() {
     </div>
   );
 }
-

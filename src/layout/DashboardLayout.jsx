@@ -4,8 +4,9 @@ import api from "../api/axiosClient";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { MdDashboard } from "react-icons/md";
-import { FaCarSide, FaIdBadge, FaUsers } from "react-icons/fa";
+import { FaCarSide, FaIdBadge, FaUsers, FaUserShield } from "react-icons/fa";
 import { MdRoute } from "react-icons/md";
+import { MdOutlineMap } from "react-icons/md";
 import { RiToolsFill } from "react-icons/ri";
 import { IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
@@ -35,8 +36,9 @@ const DashboardLayout = () => {
     <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-all duration-300">
       {/* Sidebar */}
       <aside
-        className={`${collapsed ? "w-20" : "w-64"
-          } bg-[var(--bg-elevated)] border-r border-[var(--border-primary)] p-5 transition-all duration-300 shadow-lg`}
+        className={`${
+          collapsed ? "w-20" : "w-64"
+        } bg-[var(--bg-elevated)] border-r border-[var(--border-primary)] p-5 transition-all duration-300 shadow-lg`}
       >
         {/* Collapse Button */}
         <button
@@ -50,12 +52,7 @@ const DashboardLayout = () => {
         {/* Sidebar Title */}
         {!collapsed && (
           <div className="mb-8 transition-opacity duration-200">
-            <h2 className="text-2xl font-bold text-gradient">
-              🚚 Fleet Admin
-            </h2>
-            <p className="text-xs text-[var(--text-tertiary)] mt-1">
-              Management System
-            </p>
+            <h2 className="text-2xl font-bold text-gradient">🚚 Fleet Admin</h2>
           </div>
         )}
 
@@ -68,19 +65,23 @@ const DashboardLayout = () => {
             label="Dashboard"
           />
 
-          <SidebarItem
-            collapsed={collapsed}
-            to="/dashboard/vehicles"
-            icon={<FaCarSide size={20} />}
-            label="Vehicles"
-          />
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/vehicles"
+              icon={<FaCarSide size={20} />}
+              label="Vehicles"
+            />
+          )}
 
-          <SidebarItem
-            collapsed={collapsed}
-            to="/dashboard/drivers"
-            icon={<FaIdBadge size={20} />}
-            label="Drivers"
-          />
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/drivers"
+              icon={<FaIdBadge size={20} />}
+              label="Drivers"
+            />
+          )}
 
           <SidebarItem
             collapsed={collapsed}
@@ -89,22 +90,49 @@ const DashboardLayout = () => {
             label="Trips"
           />
 
-          <SidebarItem
-            collapsed={collapsed}
-            to="/dashboard/maintenance"
-            icon={<RiToolsFill size={20} />}
-            label="Maintenance"
-          />
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/clients"
+              icon={<FaUsers size={20} />}
+              label="Clients"
+            />
+          )}
+
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/routes"
+              icon={<MdOutlineMap size={20} />}
+              label="Routes"
+            />
+          )}
+
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/maintenance"
+              icon={<RiToolsFill size={20} />}
+              label="Maintenance"
+            />
+          )}
+
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/admin"
+              icon={<FaUserShield size={20} />}
+              label="Admin Panel"
+            />
+          )}
 
           <SidebarItem
             collapsed={collapsed}
-            to="/dashboard/clients"
-            icon={<FaUsers size={20} />}
-            label="Clients"
+            to="/profile"
+            icon={<MdDashboard size={20} />}
+            label="Profile"
           />
         </nav>
-
-
       </aside>
 
       {/* Main Content Area */}
@@ -122,14 +150,14 @@ const DashboardLayout = () => {
             {/* User Info */}
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--bg-secondary)]">
               <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center text-white font-semibold">
-                {user?.name?.charAt(0).toUpperCase() || 'U'}
+                {user?.name?.charAt(0).toUpperCase() || "U"}
               </div>
               <div className="hidden sm:block">
                 <p className="text-sm font-medium text-[var(--text-primary)]">
-                  {user?.name || 'User'}
+                  {user?.name || "User"}
                 </p>
                 <p className="text-xs text-[var(--text-tertiary)] capitalize">
-                  {user?.role || 'Admin'}
+                  {user?.role || "Admin"}
                 </p>
               </div>
             </div>
@@ -141,7 +169,7 @@ const DashboardLayout = () => {
               title="Logout"
             >
               <FiLogOut size={18} />
-              <span className="hidden sm:inline">Logout</span>
+              <span>Logout</span>
             </button>
           </div>
         </header>
@@ -162,13 +190,19 @@ export default DashboardLayout;
 function SidebarItem({ to, icon, label, collapsed }) {
   const baseClasses = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all font-medium
-     ${isActive
-      ? "bg-gradient-primary text-white shadow-md"
-      : "text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
-    }`;
+     ${
+       isActive
+         ? "bg-gradient-primary text-white shadow-md"
+         : "text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+     }`;
 
   return (
-    <NavLink to={to} end={to === "/dashboard"} className={baseClasses} title={collapsed ? label : ""}>
+    <NavLink
+      to={to}
+      end={to === "/dashboard"}
+      className={baseClasses}
+      title={collapsed ? label : ""}
+    >
       <span className={collapsed ? "mx-auto" : ""}>{icon}</span>
       {!collapsed && (
         <span className="whitespace-nowrap transition-opacity duration-200">
