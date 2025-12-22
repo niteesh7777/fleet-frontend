@@ -122,6 +122,11 @@ export const validateRoute = (formData) => {
     errors.push("Estimated duration must be at least 0.1 hours");
   }
 
+  // CreatedBy validation
+  if (!formData.createdBy || !formData.createdBy.trim()) {
+    errors.push("User authentication is required");
+  }
+
   // Waypoints validation
   if (formData.waypoints && formData.waypoints.length > 0) {
     formData.waypoints.forEach((waypoint, index) => {

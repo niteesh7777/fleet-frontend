@@ -109,13 +109,13 @@ export default function AssignedDriversPanel({
     [];
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className="bg-[var(--bg-elevated)] rounded-lg border border-[var(--border-primary)] p-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
             Assigned Drivers
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[var(--text-secondary)]">
             {vehicle?.vehicleNo} - {assignedDrivers.length} driver
             {assignedDrivers.length !== 1 ? "s" : ""} assigned
           </p>
@@ -144,10 +144,10 @@ export default function AssignedDriversPanel({
       </div>
 
       {/* Vehicle Status Overview */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-6 p-4 bg-[var(--bg-secondary)] rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <span className="text-sm font-medium text-gray-600">
+            <span className="text-sm font-medium text-[var(--text-secondary)]">
               Vehicle Status
             </span>
             <div className="mt-1">
@@ -155,16 +155,18 @@ export default function AssignedDriversPanel({
             </div>
           </div>
           <div>
-            <span className="text-sm font-medium text-gray-600">Capacity</span>
-            <p className="mt-1 text-lg font-semibold text-gray-900">
+            <span className="text-sm font-medium text-[var(--text-secondary)]">
+              Capacity
+            </span>
+            <p className="mt-1 text-lg font-semibold text-[var(--text-primary)]">
               {vehicle?.capacity || "N/A"} passengers
             </p>
           </div>
           <div>
-            <span className="text-sm font-medium text-gray-600">
+            <span className="text-sm font-medium text-[var(--text-secondary)]">
               Current Assignments
             </span>
-            <p className="mt-1 text-lg font-semibold text-gray-900">
+            <p className="mt-1 text-lg font-semibold text-[var(--text-primary)]">
               {assignedDrivers.length} / {vehicle?.maxDrivers || "∞"}
             </p>
           </div>
@@ -175,12 +177,14 @@ export default function AssignedDriversPanel({
       {loadingDetails ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
-          <span className="text-gray-600">Loading driver details...</span>
+          <span className="text-[var(--text-secondary)]">
+            Loading driver details...
+          </span>
         </div>
       ) : assignedDrivers.length === 0 ? (
         <div className="text-center py-8">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400"
+            className="mx-auto h-12 w-12 text-[var(--text-tertiary)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -192,10 +196,10 @@ export default function AssignedDriversPanel({
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
+          <h3 className="mt-2 text-sm font-medium text-[var(--text-primary)]">
             No drivers assigned
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-[var(--text-secondary)]">
             Get started by assigning a driver to this vehicle.
           </p>
           {showActions && (
@@ -211,7 +215,7 @@ export default function AssignedDriversPanel({
           {assignedDrivers.map((driver, index) => (
             <div
               key={driver._id || driver.id || index}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-4 border border-[var(--border-primary)] rounded-lg hover:bg-[var(--bg-secondary)] transition-colors"
             >
               <div className="flex items-center space-x-4">
                 {/* Driver Avatar */}
@@ -226,7 +230,7 @@ export default function AssignedDriversPanel({
                 {/* Driver Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-3">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                       {getDriverDisplayName(driver)}
                     </p>
                     <AssignmentStatusBadge
@@ -234,7 +238,7 @@ export default function AssignedDriversPanel({
                       size="sm"
                     />
                   </div>
-                  <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="mt-1 flex items-center space-x-4 text-sm text-[var(--text-secondary)]">
                     <span>{getDriverEmail(driver)}</span>
                     <span>•</span>
                     <span>{getDriverPhone(driver)}</span>
@@ -246,7 +250,7 @@ export default function AssignedDriversPanel({
                     )}
                   </div>
                   {driver.experienceYears && (
-                    <div className="mt-1 text-sm text-gray-500">
+                    <div className="mt-1 text-sm text-[var(--text-secondary)]">
                       Experience: {driver.experienceYears} years
                     </div>
                   )}
@@ -288,7 +292,7 @@ export default function AssignedDriversPanel({
 
       {/* Assignment Statistics */}
       {assignedDrivers.length > 0 && (
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-[var(--border-primary)]">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <p className="text-2xl font-semibold text-green-600">
@@ -298,7 +302,7 @@ export default function AssignedDriversPanel({
                   ).length
                 }
               </p>
-              <p className="text-sm text-gray-600">Available</p>
+              <p className="text-sm text-[var(--text-secondary)]">Available</p>
             </div>
             <div>
               <p className="text-2xl font-semibold text-blue-600">
@@ -308,17 +312,17 @@ export default function AssignedDriversPanel({
                   ).length
                 }
               </p>
-              <p className="text-sm text-gray-600">On Duty</p>
+              <p className="text-sm text-[var(--text-secondary)]">On Duty</p>
             </div>
             <div>
-              <p className="text-2xl font-semibold text-gray-600">
+              <p className="text-2xl font-semibold text-[var(--text-tertiary)]">
                 {
                   assignedDrivers.filter(
                     (d) => getDriverStatus(d) === "off-duty"
                   ).length
                 }
               </p>
-              <p className="text-sm text-gray-600">Off Duty</p>
+              <p className="text-sm text-[var(--text-secondary)]">Off Duty</p>
             </div>
             <div>
               <p className="text-2xl font-semibold text-red-600">
@@ -328,7 +332,9 @@ export default function AssignedDriversPanel({
                   ).length
                 }
               </p>
-              <p className="text-sm text-gray-600">Unavailable</p>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Unavailable
+              </p>
             </div>
           </div>
         </div>

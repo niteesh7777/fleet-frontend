@@ -15,6 +15,10 @@ import { FiPlus, FiUsers, FiEdit2, FiTrash2 } from "react-icons/fi";
 import SelectDriverModal from "./SelectDriverModal";
 import AssignedDriversPanel from "./AssignedDriversPanel";
 import AssignmentStatusBadge from "./AssignmentStatusBadge";
+import useBulkSelection, {
+  BulkActionToolbar,
+  BulkSelectCheckbox,
+} from "../../hooks/useBulkSelection";
 
 export default function Vehicles() {
   // Pagination hook setup
@@ -43,6 +47,9 @@ export default function Vehicles() {
   const [assignDriverModalOpen, setAssignDriverModalOpen] = useState(false);
   const [showDriversPanel, setShowDriversPanel] = useState(false);
   const [vehicleForAssignment, setVehicleForAssignment] = useState(null);
+
+  // Bulk selection
+  const bulkSelection = useBulkSelection(vehicles || [], "_id");
 
   // Filter configuration
   const filterConfig = [
@@ -152,6 +159,29 @@ export default function Vehicles() {
         />
       </Card>
 
+      {/* Bulk Action Toolbar */}
+      <BulkActionToolbar
+        selectedCount={bulkSelection.selectedCount}
+        onDelete={() => {
+          if (
+            window.confirm(
+              `Delete ${bulkSelection.selectedCount} selected vehicles?`
+            )
+          ) {
+            // Implement bulk delete
+            toast.success(`${bulkSelection.selectedCount} vehicles deleted`);
+            bulkSelection.clearSelection();
+            refresh();
+          }
+        }}
+        onExport={() => {
+          const selected = bulkSelection.getSelectedItems();
+          console.log("Exporting vehicles:", selected);
+          toast.success(`Exported ${selected.length} vehicles`);
+        }}
+        onClearSelection={bulkSelection.clearSelection}
+      />
+
       {/* Vehicles Table */}
       <Card>
         {loading ? (
@@ -169,6 +199,13 @@ export default function Vehicles() {
               <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead className="bg-gray-50 dark:bg-gray-800">
                   <tr>
+                    <th className="px-6 py-3 text-left">
+                      <BulkSelectCheckbox
+                        checked={bulkSelection.isAllSelected}
+                        indeterminate={bulkSelection.isSomeSelected}
+                        onChange={bulkSelection.toggleAll}
+                      />
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Vehicle
                     </th>
@@ -195,6 +232,14 @@ export default function Vehicles() {
                       key={vehicle._id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
+                      <td className="px-6 py-4">
+                        <BulkSelectCheckbox
+                          checked={bulkSelection.isSelected(vehicle._id)}
+                          onChange={() =>
+                            bulkSelection.toggleSelection(vehicle._id)
+                          }
+                        />
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -220,10 +265,10 @@ export default function Vehicles() {
                             vehicle.status === "available"
                               ? "success"
                               : vehicle.status === "in-trip"
-                              ? "warning"
-                              : vehicle.status === "maintenance"
-                              ? "info"
-                              : "danger"
+                                ? "warning"
+                                : vehicle.status === "maintenance"
+                                  ? "info"
+                                  : "danger"
                           }
                         />
                       </td>

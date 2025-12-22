@@ -13,10 +13,25 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().token;
+    const state = useAuthStore.getState();
+    const token = state.token;
+
+    // Endpoints that don't require authentication
+    const publicEndpoints = ["/auth/login", "/auth/register", "/auth/refresh"];
+    const isPublicEndpoint = publicEndpoints.some((endpoint) =>
+      config.url?.startsWith(endpoint)
+    );
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else if (!isPublicEndpoint && state.user) {
+      // Warn only if user is logged in but token is missing for protected endpoints
+      console.warn(
+        "[API] No token available for protected request:",
+        config.url,
+        "User:",
+        state.user?.name
+      );
     }
 
     return config;
@@ -46,6 +61,11 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    console.warn("[API] 401 Error - Attempting token refresh", {
+      url: originalRequest.url,
+      hasToken: !!useAuthStore.getState().token,
+    });
+
     if (originalRequest._retry) {
       useAuthStore.getState().logout();
       showUnauthorizedError();
@@ -63,6 +83,10 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch (refreshError) {
+      console.error(
+        "[API] Token refresh failed:",
+        refreshError.response?.data?.message
+      );
       useAuthStore.getState().logout();
       showUnauthorizedError();
       return Promise.reject(refreshError);

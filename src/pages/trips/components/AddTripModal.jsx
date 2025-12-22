@@ -8,14 +8,16 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
   const { drivers, vehicles, clients, routes, fetchAll } = useTripLookups();
 
   const [form, setForm] = useState({
-    routeId: "", // ✅ ADD ROUTE SELECTION
+    routeId: "",
     clientId: "",
-    driverIds: [], // ✅ SUPPORT MULTIPLE DRIVERS
-    vehicleIds: [], // ✅ SUPPORT MULTIPLE VEHICLES
-    goodsInfo: "", // ✅ ADD GOODS INFO
-    loadWeightKg: "", // ✅ ADD LOAD WEIGHT
-    tripCost: "", // ✅ AUTO-CALCULATED FROM ROUTE
-    startTime: "", // ✅ ADD START TIME
+    driverId: "",
+    driverIds: [],
+    vehicleId: "",
+    vehicleIds: [],
+    goodsInfo: "",
+    loadWeightKg: "",
+    tripCost: "",
+    startTime: "",
     status: "scheduled",
   });
 
@@ -211,7 +213,7 @@ export default function AddTripModal({ open, onClose, onSubmit }) {
             className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
           >
             <option value="scheduled">Scheduled</option>
-            <option value="in-progress">In Progress</option>
+            <option value="in-transit">In Transit</option>
             <option value="completed">Completed</option>
           </select>
         </div>

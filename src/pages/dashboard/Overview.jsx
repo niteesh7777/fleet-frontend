@@ -6,6 +6,9 @@ import api from "../../api/axiosClient";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 import Card from "../../components/ui/Card";
 import { useAuthStore } from "../../store/authStore";
+import QuickActionsPanel from "../../components/workflow/QuickActionsPanel";
+import SmartFiltersPanel from "../../components/workflow/SmartFiltersPanel";
+import toast from "react-hot-toast";
 
 export default function Overview() {
   const { user } = useAuthStore();
@@ -16,6 +19,8 @@ export default function Overview() {
     clients: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [filteredTrips, setFilteredTrips] = useState([]);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -37,7 +42,7 @@ export default function Overview() {
         setStats({
           vehicles: vehiclesRes.data.data?.vehicles?.length || 0,
           drivers: driversRes.data.data?.drivers?.length || 0,
-          trips: tripsRes.data.data?.trips?.length || 0,
+          trips: tripsRes.data.data?.items?.length || 0,
           clients: clientsRes.data.data?.clients?.length || 0,
         });
       } else {
@@ -56,6 +61,31 @@ export default function Overview() {
       console.error("Failed to fetch stats:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApplyFilter = async (filters) => {
+    console.log("Overview: Applying filters:", filters);
+    try {
+      setIsFiltering(true);
+
+      // Make API call with filters
+      const response = await api.get("/trips", { params: filters });
+      const trips = response.data.data?.items || [];
+
+      console.log("Overview: Filtered trips:", trips.length);
+      setFilteredTrips(trips);
+
+      // Show success message
+      toast.success(`Found ${trips.length} trips matching your filters`);
+    } catch (err) {
+      console.error("Overview: Filter application failed:", err);
+      toast.error("Failed to apply filters");
+
+      // Reset filtered trips on error
+      setFilteredTrips([]);
+    } finally {
+      setIsFiltering(false);
     }
   };
 
@@ -120,8 +150,19 @@ export default function Overview() {
         )}
       </div>
 
+      {/* Workflow Automation Section */}
+      {user?.role === "admin" && (
+        <>
+          <QuickActionsPanel />
+
+          <div className="mt-6">
+            <SmartFiltersPanel onApplyFilter={handleApplyFilter} />
+          </div>
+        </>
+      )}
+
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 mt-6">
         <Card hover>
           <h2 className="text-xl font-semibold mb-4 text-[var(--text-primary)]">
             Quick Actions

@@ -9,11 +9,13 @@ import { MdRoute } from "react-icons/md";
 import { MdOutlineMap } from "react-icons/md";
 import { RiToolsFill } from "react-icons/ri";
 import { IoMenu, IoClose } from "react-icons/io5";
-import { FiLogOut } from "react-icons/fi";
+import { FiLogOut, FiZap } from "react-icons/fi";
 import ThemeToggle from "../components/ui/ThemeToggle";
+import NotificationCenter from "../components/NotificationCenter";
 
 const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
@@ -30,23 +32,45 @@ const DashboardLayout = () => {
     logout(); // clear Zustand + localStorage
     navigate("/login"); // redirect
   };
+
   const toggleSidebar = () => setCollapsed(!collapsed);
+  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
   return (
     <div className="flex min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-all duration-300">
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={toggleMobileMenu}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={`${
           collapsed ? "w-20" : "w-64"
-        } bg-[var(--bg-elevated)] border-r border-[var(--border-primary)] p-5 transition-all duration-300 shadow-lg`}
+        } bg-[var(--bg-elevated)] border-r border-[var(--border-primary)] p-5 transition-all duration-300 shadow-lg
+        fixed lg:static inset-y-0 left-0 z-50 transform ${
+          mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
-        {/* Collapse Button */}
+        {/* Collapse Button - Desktop Only */}
         <button
           onClick={toggleSidebar}
-          className="text-[var(--text-secondary)] mb-6 p-2 bg-[var(--bg-secondary)] rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
+          className="hidden lg:block text-[var(--text-secondary)] mb-6 p-2 bg-[var(--bg-secondary)] rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <IoMenu size={22} /> : <IoClose size={22} />}
+        </button>
+
+        {/* Close Button - Mobile Only */}
+        <button
+          onClick={toggleMobileMenu}
+          className="lg:hidden text-[var(--text-secondary)] mb-6 p-2 bg-[var(--bg-secondary)] rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors"
+          aria-label="Close menu"
+        >
+          <IoClose size={22} />
         </button>
 
         {/* Sidebar Title */}
@@ -80,6 +104,15 @@ const DashboardLayout = () => {
               to="/dashboard/drivers"
               icon={<FaIdBadge size={20} />}
               label="Drivers"
+            />
+          )}
+
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/drivers/live-tracking"
+              icon={<MdOutlineMap size={20} />}
+              label="Live Tracking"
             />
           )}
 
@@ -120,6 +153,15 @@ const DashboardLayout = () => {
           {user?.role === "admin" && (
             <SidebarItem
               collapsed={collapsed}
+              to="/dashboard/workflow"
+              icon={<FiZap size={20} />}
+              label="Automation"
+            />
+          )}
+
+          {user?.role === "admin" && (
+            <SidebarItem
+              collapsed={collapsed}
               to="/dashboard/admin"
               icon={<FaUserShield size={20} />}
               label="Admin Panel"
@@ -136,9 +178,18 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
         <header className="h-16 bg-[var(--bg-elevated)] border-b border-[var(--border-primary)] flex items-center justify-between px-6 shadow-sm">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={toggleMobileMenu}
+            className="lg:hidden p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-lg transition-colors"
+            aria-label="Open menu"
+          >
+            <IoMenu size={24} />
+          </button>
+
           <h1 className="text-xl font-semibold text-[var(--text-primary)]">
             Dashboard
           </h1>
@@ -146,6 +197,9 @@ const DashboardLayout = () => {
           <div className="flex items-center gap-4">
             {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Notification Center */}
+            <NotificationCenter />
 
             {/* User Info */}
             <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--bg-secondary)]">

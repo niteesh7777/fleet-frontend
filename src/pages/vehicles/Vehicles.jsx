@@ -18,6 +18,8 @@ import SelectDriverModal from "./SelectDriverModal";
 import AssignedDriversPanel from "./AssignedDriversPanel";
 import AssignmentStatusBadge from "./AssignmentStatusBadge";
 import { validateVehicleForm } from "../../utils/validation";
+import TemplateManager from "../../components/workflow/TemplateManager";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
 export default function Vehicles() {
   // Pagination hook setup

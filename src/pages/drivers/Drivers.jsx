@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useDrivers from "./hooks/useDrivers";
 import { FiPlus, FiSearch } from "react-icons/fi";
+import { MdOutlineMap } from "react-icons/md";
 
 import DriversTable from "./components/DriversTable";
 import AddDriverModal from "./components/AddDriverModal";
@@ -11,6 +13,7 @@ import Input from "../../components/ui/Input";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 
 export default function Drivers() {
+  const navigate = useNavigate();
   const { drivers, loading, createDriver, updateDriver, deleteDriver } =
     useDrivers();
 
@@ -33,15 +36,23 @@ export default function Drivers() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">Drivers</h1>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">
+        Drivers
+      </h1>
 
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-        <Button
-          onClick={() => setShowAdd(true)}
-          icon={<FiPlus size={18} />}
-        >
-          Add Driver
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={() => setShowAdd(true)} icon={<FiPlus size={18} />}>
+            Add Driver
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/dashboard/drivers/live-tracking")}
+            icon={<MdOutlineMap size={18} />}
+          >
+            Live Tracking
+          </Button>
+        </div>
 
         <div className="relative flex-1 max-w-md">
           <Input

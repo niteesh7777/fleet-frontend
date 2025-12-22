@@ -21,20 +21,19 @@ export default function Clients() {
   const [showDelete, setShowDelete] = useState(false);
 
   const filtered = clients.filter((c) =>
-    `${c.name} ${c.email} ${c.phone}`
+    `${c.name} ${c.contact?.person} ${c.contact?.phone} ${c.contact?.email}`
       .toLowerCase()
       .includes(search.toLowerCase())
   );
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">Clients</h1>
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-6">
+        Clients
+      </h1>
 
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-        <Button
-          onClick={() => setShowAdd(true)}
-          icon={<FiPlus size={18} />}
-        >
+        <Button onClick={() => setShowAdd(true)} icon={<FiPlus size={18} />}>
           Add Client
         </Button>
 

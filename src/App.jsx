@@ -6,17 +6,27 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RoleGuard from "./components/RoleGuard";
 import Vehicles from "./pages/vehicles/Vehicles";
 import Drivers from "./pages/drivers/Drivers";
+import LiveTracking from "./pages/drivers/LiveTracking";
 import Trips from "./pages/trips/Trips";
 import Clients from "./pages/clients/Clients";
 import RoutesPage from "./pages/routes/Routes";
 import Maintenance from "./pages/maintenance/Maintenance";
 import Profile from "./pages/profile/Profile";
 import AdminPanel from "./pages/admin/AdminPanel";
+import WorkflowAutomation from "./pages/workflow/WorkflowAutomation";
 import ToastProvider from "./components/ToastProvider";
+import GlobalSearch from "./components/GlobalSearch";
+import KeyboardShortcutsHelp from "./components/KeyboardShortcutsHelp";
+import useKeyboardShortcuts from "./hooks/useKeyboardShortcuts";
 
 function App() {
+  // Initialize keyboard shortcuts
+  useKeyboardShortcuts();
+
   return (
     <>
+      <GlobalSearch />
+      <KeyboardShortcutsHelp />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Navigate to="/login" replace />} />
@@ -39,6 +49,14 @@ function App() {
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <Drivers />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="drivers/live-tracking"
+              element={
+                <RoleGuard allowedRoles={["admin"]}>
+                  <LiveTracking />
                 </RoleGuard>
               }
             />
@@ -72,6 +90,14 @@ function App() {
               element={
                 <RoleGuard allowedRoles={["admin"]}>
                   <AdminPanel />
+                </RoleGuard>
+              }
+            />
+            <Route
+              path="workflow"
+              element={
+                <RoleGuard allowedRoles={["admin"]}>
+                  <WorkflowAutomation />
                 </RoleGuard>
               }
             />

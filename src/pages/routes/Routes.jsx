@@ -3,7 +3,7 @@ import useRoutesApi from "../../hooks/useRoutesApi";
 import { FiPlus, FiSearch, FiRefreshCw } from "react-icons/fi";
 
 import RoutesTable from "./components/RoutesTable";
-import AddRouteModal from "./components/AddRouteModal";
+import RouteMapModal from "../../components/RouteMapModal";
 import EditRouteModal from "./components/EditRouteModal";
 import DeleteRouteModal from "./components/DeleteRouteModal";
 import RouteFilters from "./components/RouteFilters";
@@ -36,10 +36,53 @@ export default function Routes() {
 
   // Apply search and filters
   const filteredRoutes = useMemo(() => {
-    let result = searchRoutes(search);
-    result = filterRoutes(filters);
+    let result = routes;
+
+    // Apply search
+    if (search.trim()) {
+      const searchTerm = search.toLowerCase().trim();
+      result = result.filter(
+        (route) =>
+          route.name?.toLowerCase().includes(searchTerm) ||
+          route.source?.name?.toLowerCase().includes(searchTerm) ||
+          route.destination?.name?.toLowerCase().includes(searchTerm) ||
+          route.waypoints?.some((wp) =>
+            wp.name?.toLowerCase().includes(searchTerm)
+          )
+      );
+    }
+
+    // Apply filters
+    if (Object.keys(filters).length > 0) {
+      result = result.filter((route) => {
+        if (
+          filters.isActive !== undefined &&
+          route.isActive !== filters.isActive
+        ) {
+          return false;
+        }
+
+        if (filters.minDistance && route.distanceKm < filters.minDistance) {
+          return false;
+        }
+
+        if (filters.maxDistance && route.distanceKm > filters.maxDistance) {
+          return false;
+        }
+
+        if (filters.vehicleTypes?.length > 0) {
+          const hasMatchingVehicle = route.preferredVehicleTypes?.some((type) =>
+            filters.vehicleTypes.includes(type)
+          );
+          if (!hasMatchingVehicle) return false;
+        }
+
+        return true;
+      });
+    }
+
     return result;
-  }, [routes, search, filters, searchRoutes, filterRoutes]);
+  }, [routes, search, filters]);
 
   const stats = useMemo(() => getRouteStats(), [getRouteStats]);
 
@@ -125,7 +168,7 @@ export default function Routes() {
         )}
       </Card>
 
-      <AddRouteModal
+      <RouteMapModal
         isOpen={showAdd}
         onClose={() => setShowAdd(false)}
         onSubmit={createRoute}

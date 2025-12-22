@@ -8,21 +8,33 @@ export default function useTrips() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
 
-  const fetchTrips = async () => {
+  const fetchTrips = async (filters = {}) => {
     try {
       setLoading(true);
       const endpoint = user?.role === "driver" ? "/trips/my" : "/trips";
-      const res = await api.get(endpoint);
-      setTrips(res.data?.data?.trips || []);
+      const res = await api.get(endpoint, { params: filters });
+      // Response structure: { items: [...], pagination: {...} }
+      setTrips(res.data?.data?.items || []);
     } catch (err) {
       toast.error("Failed to load trips");
+      console.error("Error fetching trips:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const createTrip = async (payload) => {
-    await api.post("/trips", payload);
+    // Ensure driverIds and vehicleIds are arrays
+    const finalPayload = {
+      ...payload,
+      driverIds: Array.isArray(payload.driverIds)
+        ? payload.driverIds
+        : [payload.driverIds].filter(Boolean),
+      vehicleIds: Array.isArray(payload.vehicleIds)
+        ? payload.vehicleIds
+        : [payload.vehicleIds].filter(Boolean),
+    };
+    await api.post("/trips", finalPayload);
     toast.success("Trip created!");
     await fetchTrips();
   };

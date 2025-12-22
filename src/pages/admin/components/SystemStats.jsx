@@ -6,6 +6,7 @@ import {
   FaRoute,
   FaTools,
   FaUser,
+  FaChartBar,
 } from "react-icons/fa";
 import { MdRoute } from "react-icons/md";
 import Card from "../../../components/ui/Card";
@@ -58,7 +59,7 @@ export default function SystemStats() {
         totalClients: clientsRes.data.data?.clients?.length || 0,
         totalVehicles: vehiclesRes.data.data?.vehicles?.length || 0,
         activeTrips:
-          tripsRes.data.data?.trips?.filter((t) => t.status === "in-transit")
+          tripsRes.data.data?.items?.filter((t) => t.status === "in-transit")
             .length || 0,
         totalRoutes: routesRes.data.data?.length || 0,
         maintenanceCount: maintenanceRes.data.data?.length || 0,

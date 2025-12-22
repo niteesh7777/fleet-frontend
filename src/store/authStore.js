@@ -24,7 +24,8 @@ export const useAuthStore = create(
         const state = get();
         if (state.isInitialized) return;
 
-        // If user exists but no token (page refresh), try to get new token
+        // Token is now persisted in localStorage, so it should be available after rehydration
+        // Only try to refresh if user exists but still no token (shouldn't happen now)
         if (state.user && !state.token) {
           try {
             const response = await api.post("/auth/refresh");
@@ -55,8 +56,9 @@ export const useAuthStore = create(
     {
       name: "auth-storage", // localStorage key
       partialize: (state) => ({
-        // SECURITY: Never persist access tokens in localStorage (XSS risk)
-        // token: state.token, // ❌ Removed - stored in memory only
+        // Store token in localStorage despite XSS concerns - needed for persistent auth
+        // In production, use HTTP-only cookies instead
+        token: state.token, // ✅ Store token for persistent sessions
         user: state.user, // ✅ Safe to persist
         // isInitialized is not persisted - always starts false
       }),

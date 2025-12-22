@@ -71,19 +71,19 @@ export default function TripsTable({
                     {i + 1}
                   </td>
                   <td className="px-4 py-4 font-medium text-[var(--text-primary)]">
-                    {t.client?.name}
+                    {t.clientId?.name}
                   </td>
                   <td className="px-4 py-4 text-[var(--text-secondary)]">
-                    {t.driver?.user?.name}
+                    {t.driverIds?.[0]?.licenseNo || "—"}
                   </td>
                   <td className="px-4 py-4 font-mono text-sm text-[var(--text-primary)]">
-                    {t.vehicle?.vehicleNo}
+                    {t.vehicleIds?.[0]?.vehicleNo || "—"}
                   </td>
                   <td className="px-4 py-4 text-[var(--text-secondary)]">
-                    {t.startLocation} → {t.endLocation}
+                    {t.routeId?.source?.name} → {t.routeId?.destination?.name}
                   </td>
                   <td className="px-4 py-4 font-medium text-[var(--text-primary)]">
-                    ₹{t.totalAmount}
+                    ₹{t.tripCost}
                   </td>
 
                   <td className="px-4 py-4">

@@ -128,15 +128,15 @@ export default function SelectDriverModal({
   const getDriverStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "available":
-        return "text-green-600 bg-green-100";
+        return "text-green-600 bg-green-500/10";
       case "on-duty":
-        return "text-blue-600 bg-blue-100";
+        return "text-blue-600 bg-blue-500/10";
       case "off-duty":
-        return "text-gray-600 bg-gray-100";
+        return "text-[var(--text-tertiary)] bg-[var(--bg-secondary)]";
       case "suspended":
-        return "text-red-600 bg-red-100";
+        return "text-red-600 bg-red-500/10";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "text-[var(--text-tertiary)] bg-[var(--bg-secondary)]";
     }
   };
 
@@ -157,14 +157,14 @@ export default function SelectDriverModal({
                 placeholder="Search drivers by name, email, or license..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-[var(--text-primary)] placeholder-[var(--text-tertiary)]"
               />
             </div>
             <div className="flex gap-2">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-[var(--text-primary)]"
               >
                 <option value="available">Available Only</option>
                 <option value="all">All Drivers</option>
@@ -183,7 +183,7 @@ export default function SelectDriverModal({
           {/* Selection Actions */}
           {filteredDrivers.length > 0 && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">
+              <span className="text-[var(--text-secondary)]">
                 {selectedDrivers.length} of {filteredDrivers.length} drivers
                 selected
               </span>
@@ -210,27 +210,27 @@ export default function SelectDriverModal({
         </div>
 
         {/* Drivers List */}
-        <div className="max-h-96 overflow-y-auto border border-gray-200 rounded-lg">
+        <div className="max-h-96 overflow-y-auto border border-[var(--border-primary)] rounded-lg">
           {loadingDrivers ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-[var(--text-secondary)]">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
               Loading available drivers...
             </div>
           ) : filteredDrivers.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-8 text-center text-[var(--text-secondary)]">
               {searchTerm
                 ? "No drivers found matching your search."
                 : "No available drivers found."}
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-[var(--border-primary)]">
               {filteredDrivers.map((driver) => (
                 <div
                   key={driver._id}
                   className={`p-4 cursor-pointer transition-colors ${
                     selectedDrivers.includes(driver._id)
-                      ? "bg-blue-50 border-blue-200"
-                      : "hover:bg-gray-50"
+                      ? "bg-blue-500/10 border-blue-500/20"
+                      : "hover:bg-[var(--bg-secondary)]"
                   }`}
                   onClick={() => toggleDriverSelection(driver._id)}
                 >
@@ -239,15 +239,15 @@ export default function SelectDriverModal({
                       type="checkbox"
                       checked={selectedDrivers.includes(driver._id)}
                       onChange={() => toggleDriverSelection(driver._id)}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-[var(--border-primary)] rounded"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-[var(--text-primary)]">
                             {getDriverDisplayName(driver)}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-[var(--text-secondary)]">
                             {driver.user?.email}
                           </p>
                         </div>
@@ -261,7 +261,7 @@ export default function SelectDriverModal({
                           </span>
                         </div>
                       </div>
-                      <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="mt-1 flex items-center space-x-4 text-sm text-[var(--text-secondary)]">
                         <span>License: {driver.licenseNumber || "N/A"}</span>
                         <span>
                           Experience: {driver.experienceYears || 0} years
@@ -280,21 +280,27 @@ export default function SelectDriverModal({
 
         {/* Assignment Summary */}
         {selectedDrivers.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-blue-400 mb-2">
               Assignment Summary
             </h4>
-            <div className="text-sm text-blue-700">
+            <div className="text-sm text-[var(--text-secondary)]">
               <p>
                 Vehicle:{" "}
-                <span className="font-medium">{vehicle?.vehicleNo}</span>
+                <span className="font-medium text-[var(--text-primary)]">
+                  {vehicle?.vehicleNo}
+                </span>
               </p>
               <p>
                 Selected Drivers:{" "}
-                <span className="font-medium">{selectedDrivers.length}</span>
+                <span className="font-medium text-[var(--text-primary)]">
+                  {selectedDrivers.length}
+                </span>
               </p>
               <div className="mt-2">
-                <p className="font-medium mb-1">Drivers to assign:</p>
+                <p className="font-medium text-[var(--text-primary)] mb-1">
+                  Drivers to assign:
+                </p>
                 <ul className="list-disc list-inside space-y-1">
                   {selectedDrivers.map((driverId) => {
                     const driver = filteredDrivers.find(
@@ -311,7 +317,7 @@ export default function SelectDriverModal({
         )}
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-[var(--border-primary)]">
           <Button
             variant="outline"
             onClick={onClose}

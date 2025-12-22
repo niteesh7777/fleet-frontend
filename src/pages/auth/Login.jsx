@@ -39,10 +39,14 @@ export default function Login() {
         password,
       });
 
-      console.log("LOGIN RESPONSE:", res.data);
-
       // CORRECT EXTRACTION ✔
-      const { accessToken, user } = res.data.data;
+      const { accessToken, user } = res.data?.data || {};
+
+      if (!accessToken || !user) {
+        throw new Error(
+          "Invalid response structure: missing accessToken or user"
+        );
+      }
 
       // STORE IN ZUSTAND ✔
       setToken(accessToken);
@@ -55,7 +59,7 @@ export default function Login() {
       navigate("/dashboard");
     } catch (err) {
       if (loadingToast) dismissToast(loadingToast);
-      console.log(err.response?.data);
+      console.error("Login failed:", err.message);
       showLoginError(err);
     } finally {
       setLoading(false);
