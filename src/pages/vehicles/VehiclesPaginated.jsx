@@ -114,10 +114,6 @@ export default function Vehicles() {
     setDeleteModalOpen(true);
   };
 
-  const handleCRUDSuccess = () => {
-    refresh(); // Refresh data after any CRUD operation
-  };
-
   if (error) {
     return (
       <div className="p-6">

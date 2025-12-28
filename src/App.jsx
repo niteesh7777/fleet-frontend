@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 import DashboardLayout from "./layout/DashboardLayout";
 import Overview from "./pages/dashboard/Overview";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -8,6 +9,7 @@ import Vehicles from "./pages/vehicles/Vehicles";
 import Drivers from "./pages/drivers/Drivers";
 import LiveTracking from "./pages/drivers/LiveTracking";
 import Trips from "./pages/trips/Trips";
+import CreateTrip from "./pages/trips/CreateTrip";
 import Clients from "./pages/clients/Clients";
 import RoutesPage from "./pages/routes/Routes";
 import Maintenance from "./pages/maintenance/Maintenance";
@@ -31,6 +33,7 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected dashboard layout */}
         <Route element={<ProtectedRoute />}>
@@ -39,7 +42,13 @@ function App() {
             <Route
               path="vehicles"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <Vehicles />
                 </RoleGuard>
               }
@@ -47,7 +56,13 @@ function App() {
             <Route
               path="drivers"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <Drivers />
                 </RoleGuard>
               }
@@ -55,16 +70,29 @@ function App() {
             <Route
               path="drivers/live-tracking"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <LiveTracking />
                 </RoleGuard>
               }
             />
             <Route path="trips" element={<Trips />} />
+            <Route path="trips/create" element={<CreateTrip />} />
             <Route
               path="clients"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <Clients />
                 </RoleGuard>
               }
@@ -72,7 +100,13 @@ function App() {
             <Route
               path="routes"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <RoutesPage />
                 </RoleGuard>
               }
@@ -80,7 +114,13 @@ function App() {
             <Route
               path="maintenance"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <Maintenance />
                 </RoleGuard>
               }
@@ -88,7 +128,7 @@ function App() {
             <Route
               path="admin"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard allowedRoles={["company_owner", "company_admin"]}>
                   <AdminPanel />
                 </RoleGuard>
               }
@@ -96,7 +136,13 @@ function App() {
             <Route
               path="workflow"
               element={
-                <RoleGuard allowedRoles={["admin"]}>
+                <RoleGuard
+                  allowedRoles={[
+                    "company_owner",
+                    "company_admin",
+                    "company_manager",
+                  ]}
+                >
                   <WorkflowAutomation />
                 </RoleGuard>
               }

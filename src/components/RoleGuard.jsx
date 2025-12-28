@@ -12,7 +12,8 @@ export default function RoleGuard({
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  // Check companyRole for multi-tenant architecture
+  if (!allowedRoles.includes(user.companyRole)) {
     return <Navigate to={redirectTo} replace />;
   }
 

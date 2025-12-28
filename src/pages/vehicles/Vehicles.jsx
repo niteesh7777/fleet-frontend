@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import api from "../../api/axiosClient";
+import { parseBackendError } from "../../utils/validation";
 import StatusBadge from "../../components/ui/StatusBadge";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 import EmptyState from "../../components/ui/EmptyState";
@@ -26,7 +27,6 @@ export default function Vehicles() {
   const {
     data: vehicles,
     loading,
-    error,
     pagination,
     goToPage,
     changeLimit,

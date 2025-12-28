@@ -14,7 +14,11 @@ export default function TripsTable({
   onTripComplete,
 }) {
   const { user } = useAuthStore();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = [
+    "company_owner",
+    "company_admin",
+    "company_manager",
+  ].includes(user?.companyRole);
 
   return (
     <Card className="overflow-hidden p-0">

@@ -1,13 +1,8 @@
 import { Fragment } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FiX } from "react-icons/fi";
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
+import { cn } from "../../utils/cn";
 
 const Modal = ({
   isOpen,
@@ -44,17 +39,17 @@ const Modal = ({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className={cn(
-                `bg-[var(--bg-elevated)] border border-[var(--border-primary)] shadow-2xl pointer-events-auto flex flex-col ${sizeClasses}`,
+                `bg-(--bg-elevated) border border-(--border-primary) shadow-2xl pointer-events-auto flex flex-col ${sizeClasses}`,
                 className
               )}
             >
-              <div className="flex items-center justify-between p-6 border-b border-[var(--border-primary)]">
-                <h3 className="text-xl font-semibold text-[var(--text-primary)]">
+              <div className="flex items-center justify-between p-6 border-b border-(--border-primary)">
+                <h3 className="text-xl font-semibold text-(--text-primary)">
                   {title}
                 </h3>
                 <button
                   onClick={onClose}
-                  className="text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors p-1 rounded-md hover:bg-[var(--bg-secondary)]"
+                  className="text-(--text-tertiary) hover:text-(--text-primary) transition-colors p-1 rounded-md hover:bg-(--bg-secondary)"
                 >
                   <FiX size={20} />
                 </button>

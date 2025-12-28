@@ -17,7 +17,7 @@ export default function TextArea({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+        <label className="block text-sm font-medium text-(--text-secondary) mb-2">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -35,7 +35,7 @@ export default function TextArea({
           disabled:opacity-50 disabled:cursor-not-allowed
           resize-vertical min-h-[80px]
           bg-white dark:bg-gray-800 
-          text-[var(--text-primary)] dark:text-gray-100
+          text-(--text-primary) dark:text-gray-100
           dark:border-gray-600 dark:focus:border-blue-400
           transition-colors duration-200
           ${className}

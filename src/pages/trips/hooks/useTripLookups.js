@@ -21,7 +21,7 @@ export default function useTripLookups() {
       setVehicles(vRes.data?.data?.vehicles || []);
       setClients(cRes.data?.data?.clients || []);
       setRoutes(rRes.data?.data?.routes || []); // ✅ SET ROUTES
-    } catch (err) {
+    } catch {
       toast.error("Failed to load dropdown data");
     }
   };

@@ -11,7 +11,9 @@ export default function useTrips() {
   const fetchTrips = async (filters = {}) => {
     try {
       setLoading(true);
-      const endpoint = user?.role === "driver" ? "/trips/my" : "/trips";
+      // Check if user is a driver (vs owner/admin/manager)
+      const endpoint =
+        user?.companyRole === "company_driver" ? "/trips/my" : "/trips";
       const res = await api.get(endpoint, { params: filters });
       // Response structure: { items: [...], pagination: {...} }
       setTrips(res.data?.data?.items || []);

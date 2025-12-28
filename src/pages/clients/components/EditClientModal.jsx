@@ -3,32 +3,27 @@ import { validateClientForm } from "../../../utils/validation";
 import toast from "react-hot-toast";
 
 export default function EditClientModal({ open, onClose, client, onSubmit }) {
-  if (!open || !client) return null;
-
   // Build the initial form from client
   const buildInitial = () => ({
-    name: client.name || "",
-    email: client.email || "",
-    phone: client.phone || "",
-    street: client.address?.street || "",
-    city: client.address?.city || "",
-    state: client.address?.state || "",
-    pincode: client.address?.pincode || "",
-    gstNumber: client.gstNumber || "",
-    contactPersonName: client.contactPerson?.name || "",
-    contactPersonPhone: client.contactPerson?.phone || "",
-    contactPersonEmail: client.contactPerson?.email || "",
-    creditLimit: client.creditLimit || "",
-    paymentTerms: client.paymentTerms || "",
+    name: client?.name || "",
+    email: client?.email || "",
+    phone: client?.phone || "",
+    street: client?.address?.street || "",
+    city: client?.address?.city || "",
+    state: client?.address?.state || "",
+    pincode: client?.address?.pincode || "",
+    gstNumber: client?.gstNumber || "",
+    contactPersonName: client?.contactPerson?.name || "",
+    contactPersonPhone: client?.contactPerson?.phone || "",
+    contactPersonEmail: client?.contactPerson?.email || "",
+    creditLimit: client?.creditLimit || "",
+    paymentTerms: client?.paymentTerms || "",
   });
 
   // Initialize state
   const [form, setForm] = useState(buildInitial);
 
-  // Reset if client changes OR modal reopens with different data
-  if (form.name !== client.name && open) {
-    setForm(buildInitial());
-  }
+  if (!open || !client) return null;
 
   const update = (key, val) => {
     setForm((f) => ({ ...f, [key]: val }));

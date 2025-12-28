@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Modal from "../../../components/ui/Modal";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
@@ -6,26 +6,18 @@ import { validatePhone, validateRequired } from "../../../utils/validation";
 import toast from "react-hot-toast";
 
 export default function EditDriverModal({ open, onClose, driver, onSubmit }) {
-  const [form, setForm] = useState({
-    licenseNo: "",
-    phone: "",
-    address: "",
-    experienceYears: 0,
-    status: "inactive",
-  });
+  const initialForm = useMemo(
+    () => ({
+      licenseNo: driver?.licenseNo || "",
+      phone: driver?.contact?.phone || "",
+      address: driver?.contact?.address || "",
+      experienceYears: driver?.experienceYears || 0,
+      status: driver?.status || "inactive",
+    }),
+    [driver]
+  );
 
-  // Reset form whenever a different driver is selected
-  useEffect(() => {
-    if (driver) {
-      setForm({
-        licenseNo: driver.licenseNo || "",
-        phone: driver.contact?.phone || "",
-        address: driver.contact?.address || "",
-        experienceYears: driver.experienceYears || 0,
-        status: driver.status || "inactive",
-      });
-    }
-  }, [driver, open]);
+  const [form, setForm] = useState(initialForm);
 
   const update = (key, val) => {
     setForm((f) => ({ ...f, [key]: val }));

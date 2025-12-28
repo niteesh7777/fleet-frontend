@@ -270,6 +270,18 @@ export const showLoginError = (error) => {
   return showError(message);
 };
 
+export const showSignupSuccess = () => {
+  return showSuccess(
+    "Company created successfully! Welcome to Fleet Management."
+  );
+};
+
+export const showSignupError = (error) => {
+  const message =
+    extractErrorMessage(error) || "Failed to create company. Please try again.";
+  return showError(message);
+};
+
 export const showLogoutSuccess = () => {
   return showInfo("You've been logged out successfully.");
 };

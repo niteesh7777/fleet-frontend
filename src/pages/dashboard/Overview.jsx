@@ -8,7 +8,6 @@ import Card from "../../components/ui/Card";
 import { useAuthStore } from "../../store/authStore";
 import QuickActionsPanel from "../../components/workflow/QuickActionsPanel";
 import SmartFiltersPanel from "../../components/workflow/SmartFiltersPanel";
-import toast from "react-hot-toast";
 
 export default function Overview() {
   const { user } = useAuthStore();
@@ -19,36 +18,134 @@ export default function Overview() {
     clients: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [filteredTrips, setFilteredTrips] = useState([]);
-  const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
 
   const fetchStats = async () => {
     try {
       setLoading(true);
 
-      if (user?.role === "admin") {
-        const [vehiclesRes, tripsRes, driversRes, clientsRes] =
-          await Promise.all([
-            api.get("/vehicles"),
-            api.get("/trips"),
-            api.get("/drivers"),
-            api.get("/clients"),
-          ]);
+      console.log("Dashboard: Fetching stats for user:", user);
+      console.log("Dashboard: User companyRole:", user?.companyRole);
+      console.log("Dashboard: API Base URL:", import.meta.env.VITE_API_URL);
 
-        setStats({
-          vehicles: vehiclesRes.data.data?.vehicles?.length || 0,
-          drivers: driversRes.data.data?.drivers?.length || 0,
-          trips: tripsRes.data.data?.items?.length || 0,
-          clients: clientsRes.data.data?.clients?.length || 0,
-        });
+      // Check if user is admin/owner/manager (not driver)
+      const isAdmin = [
+        "company_owner",
+        "company_admin",
+        "company_manager",
+      ].includes(user?.companyRole);
+
+      console.log("Dashboard: Is admin?", isAdmin);
+
+      if (isAdmin) {
+        console.log("Dashboard: Fetching admin stats...");
+
+        try {
+          // Fetch each endpoint individually to identify failures
+          let vehiclesRes, tripsRes, driversRes, clientsRes;
+
+          try {
+            console.log("Dashboard: Fetching vehicles...");
+            vehiclesRes = await api.get("/vehicles");
+            console.log("Dashboard: Vehicles response:", vehiclesRes.data);
+          } catch (err) {
+            console.error(
+              "Dashboard: Vehicles fetch failed:",
+              err.response?.data || err.message
+            );
+            vehiclesRes = { data: { data: { vehicles: [] } } };
+          }
+
+          try {
+            console.log("Dashboard: Fetching trips...");
+            tripsRes = await api.get("/trips");
+            console.log("Dashboard: Trips response:", tripsRes.data);
+          } catch (err) {
+            console.error(
+              "Dashboard: Trips fetch failed:",
+              err.response?.data || err.message
+            );
+            tripsRes = { data: { data: { items: [] } } };
+          }
+
+          try {
+            console.log("Dashboard: Fetching drivers...");
+            driversRes = await api.get("/drivers");
+            console.log("Dashboard: Drivers response:", driversRes.data);
+          } catch (err) {
+            console.error(
+              "Dashboard: Drivers fetch failed:",
+              err.response?.data || err.message
+            );
+            driversRes = { data: { data: { drivers: [] } } };
+          }
+
+          try {
+            console.log("Dashboard: Fetching clients...");
+            clientsRes = await api.get("/clients");
+            console.log("Dashboard: Clients response:", clientsRes.data);
+          } catch (err) {
+            console.error(
+              "Dashboard: Clients fetch failed:",
+              err.response?.data || err.message
+            );
+            clientsRes = { data: { data: { clients: [] } } };
+          }
+
+          setStats({
+            vehicles:
+              vehiclesRes.data.data?.vehicles?.length ||
+              vehiclesRes.data.data?.length ||
+              0,
+            drivers:
+              driversRes.data.data?.drivers?.length ||
+              driversRes.data.data?.length ||
+              0,
+            trips:
+              tripsRes.data.data?.items?.length ||
+              tripsRes.data.data?.trips?.length ||
+              tripsRes.data.data?.length ||
+              0,
+            clients:
+              clientsRes.data.data?.clients?.length ||
+              clientsRes.data.data?.length ||
+              0,
+          });
+
+          console.log("Dashboard: Stats set:", {
+            vehicles:
+              vehiclesRes.data.data?.vehicles?.length ||
+              vehiclesRes.data.data?.length ||
+              0,
+            drivers:
+              driversRes.data.data?.drivers?.length ||
+              driversRes.data.data?.length ||
+              0,
+            trips:
+              tripsRes.data.data?.items?.length ||
+              tripsRes.data.data?.trips?.length ||
+              tripsRes.data.data?.length ||
+              0,
+            clients:
+              clientsRes.data.data?.clients?.length ||
+              clientsRes.data.data?.length ||
+              0,
+          });
+        } catch (err) {
+          console.error("Dashboard: Error in admin stats fetch:", err);
+        }
       } else {
+        console.log("Dashboard: Fetching driver stats...");
         // Driver view - only fetch their own trips
         const myTripsRes = await api.get("/trips/my");
-        const myTrips = myTripsRes.data.data?.trips || [];
+        console.log("Dashboard: My trips response:", myTripsRes.data);
+        const myTrips =
+          myTripsRes.data.data?.trips || myTripsRes.data.data?.items || [];
 
         setStats({
           vehicles: 0, // Drivers don't see total vehicles
@@ -57,35 +154,12 @@ export default function Overview() {
           clients: 0,
         });
       }
+      console.log("Dashboard: Stats updated successfully");
     } catch (err) {
-      console.error("Failed to fetch stats:", err);
+      console.error("Dashboard: Failed to fetch stats:", err);
+      console.error("Dashboard: Error details:", err.response?.data);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleApplyFilter = async (filters) => {
-    console.log("Overview: Applying filters:", filters);
-    try {
-      setIsFiltering(true);
-
-      // Make API call with filters
-      const response = await api.get("/trips", { params: filters });
-      const trips = response.data.data?.items || [];
-
-      console.log("Overview: Filtered trips:", trips.length);
-      setFilteredTrips(trips);
-
-      // Show success message
-      toast.success(`Found ${trips.length} trips matching your filters`);
-    } catch (err) {
-      console.error("Overview: Filter application failed:", err);
-      toast.error("Failed to apply filters");
-
-      // Reset filtered trips on error
-      setFilteredTrips([]);
-    } finally {
-      setIsFiltering(false);
     }
   };
 
@@ -104,7 +178,11 @@ export default function Overview() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-          {user?.role === "admin" ? "Admin Dashboard" : "Driver Dashboard"}
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          )
+            ? "Admin Dashboard"
+            : "Driver Dashboard"}
         </h1>
         <p className="text-sm text-[var(--text-tertiary)]">
           Real-time fleet statistics
@@ -121,7 +199,9 @@ export default function Overview() {
           trend={{ value: 12, isPositive: true }}
         />
 
-        {user?.role === "admin" && (
+        {["company_owner", "company_admin", "company_manager"].includes(
+          user?.companyRole
+        ) && (
           <DashboardCard
             title="Total Drivers"
             value={stats.drivers}
@@ -139,7 +219,9 @@ export default function Overview() {
           trend={{ value: 5, isPositive: false }}
         />
 
-        {user?.role === "admin" && (
+        {["company_owner", "company_admin", "company_manager"].includes(
+          user?.companyRole
+        ) && (
           <DashboardCard
             title="Clients"
             value={stats.clients}
@@ -151,12 +233,14 @@ export default function Overview() {
       </div>
 
       {/* Workflow Automation Section */}
-      {user?.role === "admin" && (
+      {["company_owner", "company_admin", "company_manager"].includes(
+        user?.companyRole
+      ) && (
         <>
           <QuickActionsPanel />
 
           <div className="mt-6">
-            <SmartFiltersPanel onApplyFilter={handleApplyFilter} />
+            <SmartFiltersPanel onApplyFilter={() => {}} />
           </div>
         </>
       )}
@@ -178,7 +262,9 @@ export default function Overview() {
               href="/dashboard/trips"
               icon="🗺️"
             />
-            {user?.role === "admin" && (
+            {["company_owner", "company_admin", "company_manager"].includes(
+              user?.companyRole
+            ) && (
               <QuickActionButton
                 label="Add Driver"
                 href="/dashboard/drivers"

@@ -18,7 +18,7 @@ export default function UserManagement() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    role: "driver",
+    companyRole: "company_driver",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -95,7 +95,7 @@ export default function UserManagement() {
     setFormData({
       name: user.name || "",
       email: user.email || "",
-      role: user.role || "driver",
+      companyRole: user.companyRole || "company_driver",
     });
   };
 
@@ -169,12 +169,14 @@ export default function UserManagement() {
                   <td className="px-4 py-4 text-sm">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        user.role === "admin"
+                        ["company_owner", "company_admin"].includes(
+                          user.companyRole
+                        )
                           ? "bg-red-100 text-red-800"
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {user.role}
+                      {user.companyRole?.replace(/_/g, " ")}
                     </span>
                   </td>
                   <td className="px-4 py-4 text-sm text-[var(--text-secondary)]">
@@ -233,14 +235,16 @@ export default function UserManagement() {
               Role
             </label>
             <select
-              value={formData.role}
+              value={formData.companyRole}
               onChange={(e) =>
-                setFormData({ ...formData, role: e.target.value })
+                setFormData({ ...formData, companyRole: e.target.value })
               }
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4"
             >
-              <option value="driver">Driver</option>
-              <option value="admin">Admin</option>
+              <option value="company_driver">Driver</option>
+              <option value="company_manager">Manager</option>
+              <option value="company_admin">Admin</option>
+              <option value="company_owner">Owner</option>
             </select>
           </div>
           <div className="flex justify-end gap-3">
@@ -285,14 +289,16 @@ export default function UserManagement() {
               Role
             </label>
             <select
-              value={formData.role}
+              value={formData.companyRole}
               onChange={(e) =>
-                setFormData({ ...formData, role: e.target.value })
+                setFormData({ ...formData, companyRole: e.target.value })
               }
               className="w-full bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg py-2.5 px-4"
             >
-              <option value="driver">Driver</option>
-              <option value="admin">Admin</option>
+              <option value="company_driver">Driver</option>
+              <option value="company_manager">Manager</option>
+              <option value="company_admin">Admin</option>
+              <option value="company_owner">Owner</option>
             </select>
           </div>
           <div className="flex justify-end gap-3">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback, useLayoutEffect } from "react";
 import Modal from "../../../components/ui/Modal";
 import Button from "../../../components/ui/Button";
 import Input from "../../../components/ui/Input";
@@ -68,9 +68,8 @@ export default function ProgressUpdateForm({
   const { updateProgress, loading, validateStatusTransition } =
     useTripProgress();
 
-  // Reset form when modal opens/closes or trip changes
-  useEffect(() => {
-    if (trip && isOpen) {
+  const resetForm = useCallback(() => {
+    if (trip) {
       setFormData({
         status: trip.status || "pending",
         currentLocation: {
@@ -88,7 +87,14 @@ export default function ProgressUpdateForm({
         trafficConditions: "",
       });
     }
-  }, [trip, isOpen]);
+  }, [trip]);
+
+  // Reset form when modal opens/closes or trip changes
+  useLayoutEffect(() => {
+    if (isOpen) {
+      resetForm();
+    }
+  }, [isOpen, resetForm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

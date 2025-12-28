@@ -20,8 +20,6 @@ export default function Routes() {
     createRoute,
     updateRoute,
     deleteRoute,
-    searchRoutes,
-    filterRoutes,
     refreshRoutes,
     getRouteStats,
   } = useRoutesApi();

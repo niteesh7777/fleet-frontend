@@ -1,28 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 import { parseBackendError } from "../../../utils/validation";
 import toast from "react-hot-toast";
 
-export default function ProfileForm({ profile, onSubmit, loading, error }) {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
-  const [fieldErrors, setFieldErrors] = useState({});
+export default function ProfileForm({ profile, onSubmit, loading }) {
+  const initialForm = useMemo(
+    () => ({
+      name: profile?.name || "",
+      email: profile?.email || "",
+      phone: profile?.phone || "",
+      address: profile?.address || "",
+    }),
+    [profile]
+  );
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        name: profile.name || "",
-        email: profile.email || "",
-        phone: profile.phone || "",
-        address: profile.address || "",
-      });
-    }
-  }, [profile]);
+  const [form, setForm] = useState(initialForm);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const update = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 

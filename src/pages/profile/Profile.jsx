@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuthStore } from "../../store/authStore";
 import { useProfile } from "../../hooks/useProfile";
 import ProfileForm from "./components/ProfileForm";
 import PasswordUpdateForm from "./components/PasswordUpdateForm";
@@ -8,7 +7,6 @@ import Button from "../../components/ui/Button";
 import { FiUser, FiLock } from "react-icons/fi";
 
 export default function Profile() {
-  const { user } = useAuthStore();
   const { profile, loading, error, updateProfile } = useProfile();
   const [activeTab, setActiveTab] = useState("profile");
 

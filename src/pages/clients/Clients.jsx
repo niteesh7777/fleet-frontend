@@ -10,8 +10,7 @@ import Input from "../../components/ui/Input";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 
 export default function Clients() {
-  const { clients, loading, createClient, updateClient, deleteClient } =
-    useClients();
+  const { clients, loading, createClient, deleteClient } = useClients();
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);

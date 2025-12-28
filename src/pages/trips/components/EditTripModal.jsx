@@ -1,28 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import Modal from "../../../components/ui/Modal";
 import Input from "../../../components/ui/Input";
 import Button from "../../../components/ui/Button";
 
 export default function EditTripModal({ open, onClose, trip, onSubmit }) {
-  const [form, setForm] = useState({
-    startLocation: "",
-    endLocation: "",
-    totalAmount: "",
-    advancePayment: "",
-    status: "scheduled",
-  });
+  const initialForm = useMemo(
+    () => ({
+      startLocation: trip?.startLocation || "",
+      endLocation: trip?.endLocation || "",
+      totalAmount: trip?.totalAmount || "",
+      advancePayment: trip?.advancePayment || "",
+      status: trip?.status || "scheduled",
+    }),
+    [trip]
+  );
 
-  useEffect(() => {
-    if (trip && open) {
-      setForm({
-        startLocation: trip.startLocation || "",
-        endLocation: trip.endLocation || "",
-        totalAmount: trip.totalAmount || "",
-        advancePayment: trip.advancePayment || "",
-        status: trip.status || "scheduled",
-      });
-    }
-  }, [trip, open]);
+  const [form, setForm] = useState(initialForm);
 
   const update = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -44,11 +37,18 @@ export default function EditTripModal({ open, onClose, trip, onSubmit }) {
   if (!trip) return null;
 
   return (
-    <Modal isOpen={open} onClose={onClose} title={`Edit Trip — ${trip.startLocation} → ${trip.endLocation}`} className="max-w-lg">
+    <Modal
+      isOpen={open}
+      onClose={onClose}
+      title={`Edit Trip — ${trip.startLocation} → ${trip.endLocation}`}
+      className="max-w-lg"
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Start Location */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Start Location</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Start Location
+          </label>
           <Input
             value={form.startLocation}
             onChange={(e) => update("startLocation", e.target.value)}
@@ -57,7 +57,9 @@ export default function EditTripModal({ open, onClose, trip, onSubmit }) {
 
         {/* End Location */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">End Location</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            End Location
+          </label>
           <Input
             value={form.endLocation}
             onChange={(e) => update("endLocation", e.target.value)}
@@ -66,7 +68,9 @@ export default function EditTripModal({ open, onClose, trip, onSubmit }) {
 
         {/* Amount */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Total Amount (₹)</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Total Amount (₹)
+          </label>
           <Input
             type="number"
             value={form.totalAmount}
@@ -76,7 +80,9 @@ export default function EditTripModal({ open, onClose, trip, onSubmit }) {
 
         {/* Advance */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Advance Payment (₹)</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Advance Payment (₹)
+          </label>
           <Input
             type="number"
             value={form.advancePayment}
@@ -86,7 +92,9 @@ export default function EditTripModal({ open, onClose, trip, onSubmit }) {
 
         {/* Status */}
         <div>
-          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">Status</label>
+          <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+            Status
+          </label>
           <select
             value={form.status}
             onChange={(e) => update("status", e.target.value)}
@@ -101,18 +109,10 @@ export default function EditTripModal({ open, onClose, trip, onSubmit }) {
 
         {/* Buttons */}
         <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            type="submit"
-          >
-            Update Trip
-          </Button>
+          <Button type="submit">Update Trip</Button>
         </div>
       </form>
     </Modal>

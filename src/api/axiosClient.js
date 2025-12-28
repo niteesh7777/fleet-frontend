@@ -17,7 +17,12 @@ api.interceptors.request.use(
     const token = state.token;
 
     // Endpoints that don't require authentication
-    const publicEndpoints = ["/auth/login", "/auth/register", "/auth/refresh"];
+    const publicEndpoints = [
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+      "/platform/auth/signup",
+    ];
     const isPublicEndpoint = publicEndpoints.some((endpoint) =>
       config.url?.startsWith(endpoint)
     );

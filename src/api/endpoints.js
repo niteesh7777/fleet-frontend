@@ -273,3 +273,30 @@ export const maintenanceApi = {
     return response.data?.data?.maintenanceLog;
   },
 };
+
+/**
+ * Authentication API functions
+ */
+export const authApi = {
+  // Company user login
+  login: async (email, password, companySlug) => {
+    const response = await api.post("/auth/login", {
+      email,
+      password,
+      companySlug,
+    });
+    return response.data?.data;
+  },
+
+  // Platform signup (company onboarding)
+  platformSignup: async (data) => {
+    const response = await api.post("/platform/auth/signup", data);
+    return response.data?.data;
+  },
+
+  // Token refresh
+  refresh: async () => {
+    const response = await api.post("/auth/refresh");
+    return response.data?.data;
+  },
+};

@@ -12,6 +12,7 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut, FiZap } from "react-icons/fi";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import NotificationCenter from "../components/NotificationCenter";
+import { isAdmin, isOwnerOrAdmin, getDisplayRole } from "../utils/roleUtils";
 
 const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -89,7 +90,9 @@ const DashboardLayout = () => {
             label="Dashboard"
           />
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/vehicles"
@@ -98,7 +101,9 @@ const DashboardLayout = () => {
             />
           )}
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/drivers"
@@ -107,7 +112,9 @@ const DashboardLayout = () => {
             />
           )}
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/drivers/live-tracking"
@@ -123,7 +130,9 @@ const DashboardLayout = () => {
             label="Trips"
           />
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/clients"
@@ -132,7 +141,9 @@ const DashboardLayout = () => {
             />
           )}
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/routes"
@@ -141,7 +152,9 @@ const DashboardLayout = () => {
             />
           )}
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/maintenance"
@@ -150,7 +163,9 @@ const DashboardLayout = () => {
             />
           )}
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin", "company_manager"].includes(
+            user?.companyRole
+          ) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/workflow"
@@ -159,7 +174,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {user?.role === "admin" && (
+          {["company_owner", "company_admin"].includes(user?.companyRole) && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/admin"
@@ -211,7 +226,7 @@ const DashboardLayout = () => {
                   {user?.name || "User"}
                 </p>
                 <p className="text-xs text-[var(--text-tertiary)] capitalize">
-                  {user?.role || "Admin"}
+                  {getDisplayRole(user)}
                 </p>
               </div>
             </div>

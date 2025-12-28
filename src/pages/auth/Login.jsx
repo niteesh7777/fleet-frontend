@@ -1,8 +1,8 @@
-import { useState } from "react";
-import api from "../../api/axiosClient";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
-import { FiMail, FiLock, FiLogIn } from "react-icons/fi";
+import { FiMail, FiLock, FiLogIn, FiBriefcase } from "react-icons/fi";
 import {
   showLoginSuccess,
   showLoginError,
@@ -10,19 +10,29 @@ import {
   showLoading,
   dismissToast,
 } from "../../utils/toast";
+import { authApi } from "../../api/endpoints";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [companySlug, setCompanySlug] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser, setToken } = useAuthStore();
+
+  // Show success message from registration
+  useEffect(() => {
+    if (location.state?.message) {
+      showLoginSuccess(location.state.message);
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!email || !password || !companySlug) {
       showValidationError(["Please fill out all fields"]);
       return;
     }
@@ -33,14 +43,11 @@ export default function Login() {
       setLoading(true);
       loadingToast = showLoading("Signing you in...");
 
-      // USE BASE URL ✔
-      const res = await api.post("/auth/login", {
-        email,
-        password,
-      });
+      // Use authApi for login
+      const response = await authApi.login(email, password, companySlug);
 
       // CORRECT EXTRACTION ✔
-      const { accessToken, user } = res.data?.data || {};
+      const { accessToken, user } = response || {};
 
       if (!accessToken || !user) {
         throw new Error(
@@ -88,6 +95,29 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Company Slug */}
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                Company Slug
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiBriefcase
+                    className="text-[var(--text-tertiary)]"
+                    size={18}
+                  />
+                </div>
+                <input
+                  type="text"
+                  className="w-full pl-10 pr-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-[var(--text-primary)] rounded-lg 
+                   focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
+                  placeholder="your-company"
+                  value={companySlug}
+                  onChange={(e) => setCompanySlug(e.target.value)}
+                />
+              </div>
+            </div>
+
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">

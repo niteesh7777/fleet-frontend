@@ -14,7 +14,7 @@ export const formatDate = (dateString) => {
       hour: "2-digit",
       minute: "2-digit",
     });
-  } catch (error) {
+  } catch {
     return "Invalid Date";
   }
 };
@@ -28,7 +28,7 @@ export const formatDateShort = (dateString) => {
       month: "short",
       day: "numeric",
     });
-  } catch (error) {
+  } catch {
     return "Invalid Date";
   }
 };
@@ -42,7 +42,7 @@ export const formatTime = (dateString) => {
       hour: "2-digit",
       minute: "2-digit",
     });
-  } catch (error) {
+  } catch {
     return "Invalid Time";
   }
 };
@@ -55,7 +55,7 @@ export const isToday = (dateString) => {
     const today = new Date();
 
     return date.toDateString() === today.toDateString();
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -68,7 +68,7 @@ export const daysBetween = (startDate, endDate) => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return diffDays;
-  } catch (error) {
+  } catch {
     return 0;
   }
 };

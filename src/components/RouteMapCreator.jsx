@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -87,7 +87,6 @@ export default function RouteMapCreator({
   const [destination, setDestination] = useState(initialDestination || null);
   const [waypoints, setWaypoints] = useState(initialWaypoints);
   const [editingMode, setEditingMode] = useState(null); // 'source', 'destination', 'waypoint', null
-  const [selectedWaypointIndex, setSelectedWaypointIndex] = useState(null);
   const [mapCenter] = useState([20.5937, 78.9629]); // Center of India
   const [mapZoom] = useState(5);
 
@@ -150,15 +149,6 @@ export default function RouteMapCreator({
   if (source) polylineCoords.push([source.lat, source.lng]);
   waypoints.forEach((wp) => polylineCoords.push([wp.lat, wp.lng]));
   if (destination) polylineCoords.push([destination.lat, destination.lng]);
-
-  // Calculate bounds to fit all markers
-  const getAllCoordinates = () => {
-    const coords = [];
-    if (source) coords.push([source.lat, source.lng]);
-    if (destination) coords.push([destination.lat, destination.lng]);
-    waypoints.forEach((wp) => coords.push([wp.lat, wp.lng]));
-    return coords;
-  };
 
   return (
     <div className="flex gap-6 h-full">

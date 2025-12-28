@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useTrips from "./hooks/useTrips";
 import { FiPlus, FiSearch } from "react-icons/fi";
 import { useAuthStore } from "../../store/authStore";
 
 import EditTripModal from "./components/EditTripModal";
 import TripsTable from "./components/TripsTable";
-import AddTripModal from "./components/AddTripModal";
 import DeleteTripModal from "./components/DeleteTripModal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
@@ -20,11 +20,15 @@ import StatusTimeline from "./components/StatusTimeline";
 export default function Trips() {
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useTrips();
   const { user } = useAuthStore();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = [
+    "company_owner",
+    "company_admin",
+    "company_manager",
+  ].includes(user?.companyRole);
+  const navigate = useNavigate();
 
   const [showEdit, setShowEdit] = useState(false);
   const [search, setSearch] = useState("");
-  const [showAdd, setShowAdd] = useState(false);
   const [showMapCreator, setShowMapCreator] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState(null);
@@ -48,7 +52,6 @@ export default function Trips() {
   // FIX 2: Handlers to manage Async Logic & Modal Closing
   const handleAddSubmit = async (data) => {
     await createTrip(data);
-    setShowAdd(false);
   };
 
   const handleEditSubmit = async (data) => {
@@ -70,7 +73,6 @@ export default function Trips() {
   };
 
   const closeModals = () => {
-    setShowAdd(false);
     setShowEdit(false);
     setShowDelete(false);
     setShowMapCreator(false);
@@ -107,7 +109,7 @@ export default function Trips() {
         {isAdmin && (
           <div className="flex gap-2">
             <Button
-              onClick={() => setShowAdd(true)}
+              onClick={() => navigate("/dashboard/trips/create")}
               icon={<FiPlus size={18} />}
             >
               Add Trip
@@ -164,14 +166,6 @@ export default function Trips() {
           onTripComplete={handleProgressSuccess}
         />
       )}
-
-      {/* Add Modal */}
-      {/* FIX 3: Render Modals conditionally or handle cleanup */}
-      <AddTripModal
-        open={showAdd}
-        onClose={closeModals}
-        onSubmit={handleAddSubmit}
-      />
 
       {/* Delete Modal */}
       <DeleteTripModal

@@ -62,6 +62,12 @@ export const useAuthStore = create(
         user: state.user, // ✅ Safe to persist
         // isInitialized is not persisted - always starts false
       }),
+      onRehydrateStorage: () => (state) => {
+        // After rehydration completes, mark as initialized
+        if (state) {
+          state.isInitialized = true;
+        }
+      },
     }
   )
 );

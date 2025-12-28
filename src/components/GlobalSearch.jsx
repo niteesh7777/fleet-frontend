@@ -103,7 +103,7 @@ export default function GlobalSearch() {
   const handleResultClick = (type, id) => {
     setIsOpen(false);
     setQuery("");
-    navigate(`/dashboard/${type}`);
+    navigate(`/dashboard/${type}/${id}`);
   };
 
   const handleClose = () => {

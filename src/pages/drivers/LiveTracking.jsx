@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { driverApi } from "../../api/endpoints";
 import DriverMap from "../../components/DriverMap";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
+import { useDriverLocationUpdates } from "../../hooks/useSocket";
 
 export default function LiveTracking() {
   const [drivers, setDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoRefresh, setAutoRefresh] = useState(false); // Disabled by default - using real-time
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [error, setError] = useState(null);
+  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
 
   const fetchDrivers = async () => {
     try {
@@ -25,10 +27,32 @@ export default function LiveTracking() {
     }
   };
 
+  // Handle real-time location updates from Socket.IO
+  const handleLocationUpdate = useCallback((data) => {
+    setDrivers((prevDrivers) =>
+      prevDrivers.map((driver) =>
+        driver._id === data.driverId
+          ? {
+              ...driver,
+              currentLocation: {
+                lat: data.latitude,
+                lng: data.longitude,
+                lastUpdated: data.updatedAt || new Date().toISOString(),
+              },
+            }
+          : driver
+      )
+    );
+    setLastUpdate(new Date());
+  }, []);
+
+  // Subscribe to real-time location updates
+  useDriverLocationUpdates(realtimeEnabled ? handleLocationUpdate : null);
+
   useEffect(() => {
     fetchDrivers();
 
-    // Auto-refresh every 30 seconds if enabled
+    // Auto-refresh every 30 seconds if enabled (fallback when real-time disabled)
     let interval;
     if (autoRefresh) {
       interval = setInterval(fetchDrivers, 30000);
@@ -71,6 +95,20 @@ export default function LiveTracking() {
           </p>
         </div>
         <div className="flex gap-3 items-center">
+          <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={realtimeEnabled}
+              onChange={(e) => setRealtimeEnabled(e.target.checked)}
+              className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+            />
+            <span className="flex items-center gap-1">
+              <span
+                className={`w-2 h-2 rounded-full ${realtimeEnabled ? "bg-green-500 animate-pulse" : "bg-gray-400"}`}
+              ></span>
+              Real-time updates
+            </span>
+          </label>
           <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
             <input
               type="checkbox"
