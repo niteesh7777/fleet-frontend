@@ -40,6 +40,18 @@ export const vehicleApi = {
     return response.data?.data?.vehicle;
   },
 
+  // Bulk delete vehicles
+  bulkDelete: async (ids) => {
+    const response = await api.post("/vehicles/bulk-delete", { ids });
+    return response.data?.data?.results;
+  },
+
+  // Get vehicle dependencies
+  getDependencies: async (id) => {
+    const response = await api.get(`/vehicles/${id}/dependencies`);
+    return response.data?.data?.dependencies;
+  },
+
   // Assign driver to vehicle
   assignDriver: async (vehicleId, driverId) => {
     const response = await api.post(`/vehicles/${vehicleId}/assign-driver`, {
@@ -96,6 +108,18 @@ export const driverApi = {
     const response = await api.delete(`/drivers/${id}`);
     return response.data?.data?.driver;
   },
+
+  // Bulk delete drivers
+  bulkDelete: async (ids) => {
+    const response = await api.post("/drivers/bulk-delete", { ids });
+    return response.data?.data?.results;
+  },
+
+  // Get driver dependencies
+  getDependencies: async (id) => {
+    const response = await api.get(`/drivers/${id}/dependencies`);
+    return response.data?.data?.dependencies;
+  },
 };
 
 /**
@@ -137,6 +161,18 @@ export const clientApi = {
     const response = await api.delete(`/clients/${id}`);
     return response.data?.data?.client;
   },
+
+  // Bulk delete clients
+  bulkDelete: async (ids) => {
+    const response = await api.post("/clients/bulk-delete", { ids });
+    return response.data?.data?.results;
+  },
+
+  // Get client dependencies
+  getDependencies: async (id) => {
+    const response = await api.get(`/clients/${id}/dependencies`);
+    return response.data?.data?.dependencies;
+  },
 };
 
 /**
@@ -177,6 +213,18 @@ export const tripApi = {
   delete: async (id) => {
     const response = await api.delete(`/trips/${id}`);
     return response.data?.data?.trip;
+  },
+
+  // Bulk delete trips
+  bulkDelete: async (ids) => {
+    const response = await api.post("/trips/bulk-delete", { ids });
+    return response.data?.data?.results;
+  },
+
+  // Get trip dependencies
+  getDependencies: async (id) => {
+    const response = await api.get(`/trips/${id}/dependencies`);
+    return response.data?.data?.dependencies;
   },
 
   // Update trip progress

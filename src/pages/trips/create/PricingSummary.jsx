@@ -18,6 +18,7 @@ export default function PricingSummary({
   onRateChange,
   totalPrice,
   isCalculating,
+  errors = {},
 }) {
   return (
     <Card className="space-y-4">
@@ -51,7 +52,7 @@ export default function PricingSummary({
 
       <div>
         <label className="text-sm font-medium text-(--text-secondary) mb-1 block">
-          Rate per km
+          Rate per km *
         </label>
         <Input
           type="number"
@@ -59,7 +60,13 @@ export default function PricingSummary({
           step={0.5}
           value={ratePerKm}
           onChange={(event) => onRateChange(Number(event.target.value) || 0)}
+          className={errors.ratePerKm ? "border-[var(--danger)]" : ""}
         />
+        {errors.ratePerKm && (
+          <p className="text-xs text-[var(--danger)] mt-1">
+            {errors.ratePerKm}
+          </p>
+        )}
       </div>
 
       <div className="rounded-lg border border-(--border-primary) bg-(--bg-primary) p-4">

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useTrips from "./hooks/useTrips";
 import { FiPlus, FiSearch } from "react-icons/fi";
 import { useAuthStore } from "../../store/authStore";
+import { isAdmin as checkIsAdmin } from "../../utils/roleUtils";
 
 import EditTripModal from "./components/EditTripModal";
 import TripsTable from "./components/TripsTable";
@@ -20,11 +21,7 @@ import StatusTimeline from "./components/StatusTimeline";
 export default function Trips() {
   const { trips, loading, createTrip, updateTrip, deleteTrip } = useTrips();
   const { user } = useAuthStore();
-  const isAdmin = [
-    "company_owner",
-    "company_admin",
-    "company_manager",
-  ].includes(user?.companyRole);
+  const isAdmin = checkIsAdmin(user);
   const navigate = useNavigate();
 
   const [showEdit, setShowEdit] = useState(false);

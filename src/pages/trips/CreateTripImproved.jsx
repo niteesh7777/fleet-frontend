@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiLoader, FiSave, FiAlertCircle, FiCheck, FiInfo } from "react-icons/fi";
+import {
+  FiArrowLeft,
+  FiLoader,
+  FiSave,
+  FiAlertCircle,
+  FiCheck,
+  FiInfo,
+} from "react-icons/fi";
 import toast from "react-hot-toast";
 import TripDetailsSection from "./create/TripDetailsSection";
 import RoutePreview from "./create/RoutePreview";
@@ -170,7 +177,12 @@ export default function CreateTrip() {
         return;
       }
 
-      setRouteState((prev) => ({ ...prev, calculating: true, error: null, usedFallback: false }));
+      setRouteState((prev) => ({
+        ...prev,
+        calculating: true,
+        error: null,
+        usedFallback: false,
+      }));
 
       try {
         const url = new URL(
@@ -209,8 +221,8 @@ export default function CreateTrip() {
           });
         }
       } catch (error) {
-        if (error.name === 'AbortError') return;
-        
+        if (error.name === "AbortError") return;
+
         console.warn("Routing API failed, using fallback", error);
         const fallbackDistance = haversineDistanceKm(
           form.source,
@@ -225,7 +237,8 @@ export default function CreateTrip() {
               [form.destination.lat, form.destination.lng],
             ],
             calculating: false,
-            error: "Route calculation unavailable. Using straight-line distance.",
+            error:
+              "Route calculation unavailable. Using straight-line distance.",
             usedFallback: true,
           });
         }
@@ -291,21 +304,26 @@ export default function CreateTrip() {
 
     if (step === 1) {
       if (!form.source) errors.source = "Source location is required";
-      if (!form.destination) errors.destination = "Destination location is required";
+      if (!form.destination)
+        errors.destination = "Destination location is required";
       if (!form.clientId) errors.clientId = "Client selection is required";
-      if (!form.goodsType || form.goodsType.trim() === "") errors.goodsType = "Goods type is required";
+      if (!form.goodsType || form.goodsType.trim() === "")
+        errors.goodsType = "Goods type is required";
     }
 
     if (step === 2) {
       if (routeState.distanceKm <= 0) errors.route = "Valid route is required";
-      if (form.ratePerKm <= 0) errors.ratePerKm = "Rate per km must be greater than 0";
+      if (form.ratePerKm <= 0)
+        errors.ratePerKm = "Rate per km must be greater than 0";
     }
 
     if (step === 3) {
       if (!form.driverId) errors.driverId = "Driver selection is required";
       if (!form.vehicleId) errors.vehicleId = "Vehicle selection is required";
-      if (availableDrivers.length === 0) errors.drivers = "No available drivers";
-      if (availableVehicles.length === 0) errors.vehicles = "No available vehicles";
+      if (availableDrivers.length === 0)
+        errors.drivers = "No available drivers";
+      if (availableVehicles.length === 0)
+        errors.vehicles = "No available vehicles";
     }
 
     setValidationErrors(errors);
@@ -521,7 +539,10 @@ export default function CreateTrip() {
                   {routeState.error && (
                     <Card className="bg-[var(--warning)]/10 border-[var(--warning)] p-4">
                       <div className="flex items-start gap-3">
-                        <FiAlertCircle className="text-[var(--warning)] flex-shrink-0 mt-0.5" size={20} />
+                        <FiAlertCircle
+                          className="text-[var(--warning)] flex-shrink-0 mt-0.5"
+                          size={20}
+                        />
                         <div>
                           <p className="font-semibold text-[var(--warning)] mb-1">
                             Route Calculation Warning
@@ -537,7 +558,9 @@ export default function CreateTrip() {
                     distanceKm={routeState.distanceKm}
                     durationMin={routeState.durationMin}
                     ratePerKm={form.ratePerKm}
-                    onRateChange={(value) => handleFormChange({ ratePerKm: value })}
+                    onRateChange={(value) =>
+                      handleFormChange({ ratePerKm: value })
+                    }
                     totalPrice={totalPrice}
                     isCalculating={routeState.calculating}
                     usedFallback={routeState.usedFallback}
@@ -552,13 +575,19 @@ export default function CreateTrip() {
                   {assignmentMode === "auto" && (
                     <Card className="bg-[var(--primary)]/10 border-[var(--primary)] p-4">
                       <div className="flex items-start gap-3">
-                        <FiInfo className="text-[var(--primary)] flex-shrink-0 mt-0.5" size={20} />
+                        <FiInfo
+                          className="text-[var(--primary)] flex-shrink-0 mt-0.5"
+                          size={20}
+                        />
                         <div>
                           <p className="font-semibold text-[var(--primary)] mb-1">
                             Auto-Assignment Active
                           </p>
                           <p className="text-sm text-[var(--text-secondary)]">
-                            The system will automatically select the best available driver and vehicle based on availability and load capacity. You can switch to manual mode to choose specific resources.
+                            The system will automatically select the best
+                            available driver and vehicle based on availability
+                            and load capacity. You can switch to manual mode to
+                            choose specific resources.
                           </p>
                         </div>
                       </div>
@@ -573,7 +602,9 @@ export default function CreateTrip() {
                     selectedVehicleId={form.vehicleId}
                     suggestedDriver={suggestedDriver}
                     suggestedVehicle={suggestedVehicle}
-                    onDriverChange={(value) => handleFormChange({ driverId: value })}
+                    onDriverChange={(value) =>
+                      handleFormChange({ driverId: value })
+                    }
                     onVehicleChange={(value) =>
                       handleFormChange({ vehicleId: value })
                     }
@@ -693,7 +724,9 @@ export default function CreateTrip() {
                   <div className="flex justify-between text-base font-semibold text-[var(--text-primary)]">
                     <dt>Total Price</dt>
                     <dd>
-                      {totalPrice > 0 ? `₹${totalPrice.toLocaleString()}` : "--"}
+                      {totalPrice > 0
+                        ? `₹${totalPrice.toLocaleString()}`
+                        : "--"}
                     </dd>
                   </div>
                 </dl>

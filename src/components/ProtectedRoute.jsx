@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/authStore";
 import { useEffect, useState } from "react";
 
 export default function ProtectedRoute() {
-  const { token, user, isInitialized, initializeAuth } = useAuthStore();
+  const { user, isInitialized, initializeAuth } = useAuthStore();
   const [isLoading, setIsLoading] = useState(!isInitialized);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function ProtectedRoute() {
   }
 
   // Redirect to login if not authenticated
-  if (!token || !user) {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 

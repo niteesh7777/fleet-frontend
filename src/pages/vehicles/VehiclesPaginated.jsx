@@ -15,10 +15,13 @@ import { FiPlus, FiUsers, FiEdit2, FiTrash2 } from "react-icons/fi";
 import SelectDriverModal from "./SelectDriverModal";
 import AssignedDriversPanel from "./AssignedDriversPanel";
 import AssignmentStatusBadge from "./AssignmentStatusBadge";
+import AddVehicleModal from "./AddVehicleModal";
+import EditVehicleModal from "./EditVehicleModal";
+import DeleteVehicleModal from "./DeleteVehicleModal";
 import useBulkSelection, {
   BulkActionToolbar,
   BulkSelectCheckbox,
-} from "../../hooks/useBulkSelection";
+} from "../../hooks/useBulkSelection.jsx";
 
 export default function Vehicles() {
   // Pagination hook setup
@@ -104,6 +107,28 @@ export default function Vehicles() {
   };
 
   // CRUD handlers
+  const handleCreate = async (formData) => {
+    try {
+      await vehicleApi.create(formData);
+      toast.success("Vehicle created successfully");
+      setShowAddModal(false);
+      refresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to create vehicle");
+    }
+  };
+
+  const handleUpdate = async (id, formData) => {
+    try {
+      await vehicleApi.update(id, formData);
+      toast.success("Vehicle updated successfully");
+      setEditModalOpen(false);
+      refresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update vehicle");
+    }
+  };
+
   const handleEdit = (vehicle) => {
     setSelectedVehicle(vehicle);
     setEditModalOpen(true);
@@ -112,6 +137,18 @@ export default function Vehicles() {
   const handleDelete = (vehicle) => {
     setVehicleToDelete(vehicle);
     setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async (vehicleId) => {
+    try {
+      await vehicleApi.delete(vehicleId);
+      toast.success("Vehicle deleted successfully");
+      setDeleteModalOpen(false);
+      setVehicleToDelete(null);
+      refresh();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete vehicle");
+    }
   };
 
   if (error) {
@@ -158,16 +195,35 @@ export default function Vehicles() {
       {/* Bulk Action Toolbar */}
       <BulkActionToolbar
         selectedCount={bulkSelection.selectedCount}
-        onDelete={() => {
+        onDelete={async () => {
+          const selectedIds = bulkSelection.selectedIds;
           if (
             window.confirm(
-              `Delete ${bulkSelection.selectedCount} selected vehicles?`
+              `Delete ${selectedIds.length} selected vehicle(s)? This action cannot be undone.`
             )
           ) {
-            // Implement bulk delete
-            toast.success(`${bulkSelection.selectedCount} vehicles deleted`);
-            bulkSelection.clearSelection();
-            refresh();
+            try {
+              const result = await vehicleApi.bulkDelete(selectedIds);
+
+              if (result.deleted.length > 0) {
+                toast.success(
+                  `Successfully deleted ${result.deleted.length} vehicle(s)`
+                );
+              }
+
+              if (result.failed.length > 0) {
+                toast.error(
+                  `Failed to delete ${result.failed.length} vehicle(s): ${result.failed.map((f) => f.reason).join(", ")}`
+                );
+              }
+
+              bulkSelection.clearSelection();
+              refresh();
+            } catch (error) {
+              toast.error(
+                error.response?.data?.message || "Bulk delete failed"
+              );
+            }
           }
         }}
         onExport={() => {
@@ -332,57 +388,32 @@ export default function Vehicles() {
         )}
       </Card>
 
-      {/* Modals - TODO: Create these components */}
-      {showAddModal && (
-        <Modal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          title="Add New Vehicle"
-        >
-          <div className="p-4">
-            <p className="text-gray-600">
-              Add Vehicle Modal - To be implemented
-            </p>
-            <Button onClick={() => setShowAddModal(false)} className="mt-4">
-              Close
-            </Button>
-          </div>
-        </Modal>
-      )}
+      {/* Modals */}
+      <AddVehicleModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSubmit={handleCreate}
+      />
 
-      {editModalOpen && (
-        <Modal
-          isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          title="Edit Vehicle"
-        >
-          <div className="p-4">
-            <p className="text-gray-600">
-              Edit Vehicle Modal - To be implemented
-            </p>
-            <Button onClick={() => setEditModalOpen(false)} className="mt-4">
-              Close
-            </Button>
-          </div>
-        </Modal>
-      )}
+      <EditVehicleModal
+        open={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedVehicle(null);
+        }}
+        onSubmit={handleUpdate}
+        vehicle={selectedVehicle}
+      />
 
-      {deleteModalOpen && (
-        <Modal
-          isOpen={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          title="Delete Vehicle"
-        >
-          <div className="p-4">
-            <p className="text-gray-600">
-              Delete Vehicle Modal - To be implemented
-            </p>
-            <Button onClick={() => setDeleteModalOpen(false)} className="mt-4">
-              Close
-            </Button>
-          </div>
-        </Modal>
-      )}
+      <DeleteVehicleModal
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setVehicleToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        vehicle={vehicleToDelete}
+      />
 
       {/* Driver Assignment Modals */}
       <SelectDriverModal

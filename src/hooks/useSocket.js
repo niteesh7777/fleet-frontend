@@ -17,11 +17,11 @@ export function useSocket() {
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
-  const { token } = useAuthStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     // Only connect if authenticated
-    if (!token) {
+    if (!user) {
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -31,8 +31,9 @@ export function useSocket() {
     }
 
     // Initialize socket connection
+    // Socket.IO will automatically send cookies with the connection request
     socketRef.current = io(SOCKET_URL, {
-      auth: { token },
+      withCredentials: true, // Send cookies with connection
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionDelay: 1000,
@@ -58,14 +59,14 @@ export function useSocket() {
       setIsConnected(false);
     });
 
-    // Cleanup on unmount or token change
+    // Cleanup on unmount or authentication change
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
       }
     };
-  }, [token]);
+  }, [user]);
 
   /**
    * Subscribe to a socket event

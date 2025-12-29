@@ -8,6 +8,7 @@ export default function TripDetailsSection({
   onSourceChange,
   onDestinationChange,
   clients,
+  errors = {},
 }) {
   return (
     <Card className="space-y-6">
@@ -16,35 +17,51 @@ export default function TripDetailsSection({
           Trip Details
         </h2>
         <p className="text-sm text-(--text-secondary)">
-          One screen to capture trip intent, route, and assignment.
+          Enter source, destination, client, and goods information
         </p>
       </div>
 
       <div className="grid gap-6">
-        <LocationAutocomplete
-          label="Source location"
-          placeholder="Search by city, address, or coordinates"
-          value={form.source}
-          onChange={onSourceChange}
-        />
+        <div>
+          <LocationAutocomplete
+            label="Source location *"
+            placeholder="Search by city, address, or coordinates"
+            value={form.source}
+            onChange={onSourceChange}
+          />
+          {errors.source && (
+            <p className="text-xs text-[var(--danger)] mt-1">{errors.source}</p>
+          )}
+        </div>
 
-        <LocationAutocomplete
-          label="Destination location"
-          placeholder="Search by city, address, or coordinates"
-          value={form.destination}
-          onChange={onDestinationChange}
-        />
+        <div>
+          <LocationAutocomplete
+            label="Destination location *"
+            placeholder="Search by city, address, or coordinates"
+            value={form.destination}
+            onChange={onDestinationChange}
+          />
+          {errors.destination && (
+            <p className="text-xs text-[var(--danger)] mt-1">
+              {errors.destination}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <label className="text-sm font-medium text-(--text-secondary) mb-1 block">
-            Client
+            Client *
           </label>
           <select
             value={form.clientId}
             onChange={(event) => onFormChange({ clientId: event.target.value })}
-            className="w-full bg-(--bg-secondary) border border-(--border-primary) text-(--text-primary) rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent"
+            className={`w-full bg-(--bg-secondary) border text-(--text-primary) rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent ${
+              errors.clientId
+                ? "border-[var(--danger)]"
+                : "border-(--border-primary)"
+            }`}
           >
             <option value="">Select client</option>
             {clients.map((client) => (
@@ -53,10 +70,15 @@ export default function TripDetailsSection({
               </option>
             ))}
           </select>
+          {errors.clientId && (
+            <p className="text-xs text-[var(--danger)] mt-1">
+              {errors.clientId}
+            </p>
+          )}
         </div>
         <div>
           <label className="text-sm font-medium text-(--text-secondary) mb-1 block">
-            Goods type
+            Goods type *
           </label>
           <Input
             placeholder="e.g., Electronics, Perishables"
@@ -64,7 +86,13 @@ export default function TripDetailsSection({
             onChange={(event) =>
               onFormChange({ goodsType: event.target.value })
             }
+            className={errors.goodsType ? "border-[var(--danger)]" : ""}
           />
+          {errors.goodsType && (
+            <p className="text-xs text-[var(--danger)] mt-1">
+              {errors.goodsType}
+            </p>
+          )}
         </div>
       </div>
 

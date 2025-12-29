@@ -20,7 +20,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { setUser, setToken } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   // Show success message from registration
   useEffect(() => {
@@ -46,17 +46,14 @@ export default function Login() {
       // Use authApi for login
       const response = await authApi.login(email, password, companySlug);
 
-      // CORRECT EXTRACTION ✔
-      const { accessToken, user } = response || {};
+      // Backend sets access & refresh tokens in httpOnly cookies
+      const { user } = response || {};
 
-      if (!accessToken || !user) {
-        throw new Error(
-          "Invalid response structure: missing accessToken or user"
-        );
+      if (!user) {
+        throw new Error("Invalid response structure: missing user");
       }
 
-      // STORE IN ZUSTAND ✔
-      setToken(accessToken);
+      // Only store user info - tokens are in httpOnly cookies
       setUser(user);
 
       dismissToast(loadingToast);

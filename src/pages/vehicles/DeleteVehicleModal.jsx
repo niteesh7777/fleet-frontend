@@ -1,29 +1,30 @@
 import { useState, useEffect } from "react";
-import Modal from "../../../components/ui/Modal";
-import Button from "../../../components/ui/Button";
-import Card from "../../../components/ui/Card";
+import Modal from "../../components/ui/Modal";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import StatusBadge from "../../components/ui/StatusBadge";
 import { FiAlertCircle, FiInfo } from "react-icons/fi";
-import { clientApi } from "../../../api/endpoints";
+import { vehicleApi } from "../../api/endpoints";
 
-export default function DeleteClientModal({
+export default function DeleteVehicleModal({
   open,
   onClose,
   onConfirm,
-  client,
+  vehicle,
 }) {
   const [loading, setLoading] = useState(false);
   const [dependencies, setDependencies] = useState(null);
 
   useEffect(() => {
-    if (open && client) {
+    if (open && vehicle) {
       fetchDependencies();
     }
-  }, [open, client]);
+  }, [open, vehicle]);
 
   const fetchDependencies = async () => {
     setLoading(true);
     try {
-      const deps = await clientApi.getDependencies(client._id);
+      const deps = await vehicleApi.getDependencies(vehicle._id);
       setDependencies(deps);
     } catch (error) {
       console.error("Failed to fetch dependencies:", error);
@@ -33,21 +34,32 @@ export default function DeleteClientModal({
     }
   };
 
-  if (!client) return null;
+  if (!vehicle) return null;
 
   return (
-    <Modal isOpen={open} onClose={onClose} title="Delete Client">
+    <Modal isOpen={open} onClose={onClose} title="Delete Vehicle">
       <div className="space-y-4">
-        <p className="text-(--text-secondary)">
-          Are you sure you want to delete{" "}
-          <span className="font-semibold text-(--danger)">{client.name}</span>?
-        </p>
+        <div>
+          <p className="text-(--text-secondary) mb-2">
+            Are you sure you want to delete this vehicle?
+          </p>
+          <div className="flex items-center gap-3">
+            <span className="text-(--danger) font-semibold text-lg">
+              {vehicle.vehicleNo}
+            </span>
+            <span className="text-(--text-secondary)">•</span>
+            <span className="text-(--text-primary) font-medium">
+              {vehicle.model}
+            </span>
+            <StatusBadge status={vehicle.status} />
+          </div>
+        </div>
 
         {loading ? (
           <Card className="p-4">
             <div className="flex items-center gap-2 text-(--text-secondary)">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-(--primary)"></div>
-              <span>Checking client data...</span>
+              <span>Checking dependencies...</span>
             </div>
           </Card>
         ) : dependencies ? (
@@ -76,12 +88,13 @@ export default function DeleteClientModal({
                     dependencies.canDelete ? "text-(--info)" : "text-(--danger)"
                   }`}
                 >
-                  {dependencies.canDelete ? "Client History" : "Cannot Delete"}
+                  {dependencies.canDelete
+                    ? "Impact Assessment"
+                    : "Cannot Delete"}
                 </p>
                 <ul className="text-sm text-(--text-secondary) space-y-1">
                   <li>• {dependencies.activeTrips} active trip(s)</li>
-                  <li>• {dependencies.completedTrips} completed trip(s)</li>
-                  <li>• {dependencies.totalTrips} total trip(s)</li>
+                  <li>• {dependencies.assignedDrivers} assigned driver(s)</li>
                 </ul>
 
                 {!dependencies.canDelete &&
@@ -98,9 +111,9 @@ export default function DeleteClientModal({
                     </div>
                   )}
 
-                {dependencies.canDelete && dependencies.completedTrips > 0 && (
+                {dependencies.canDelete && dependencies.assignedDrivers > 0 && (
                   <p className="text-xs text-(--text-secondary) mt-2">
-                    Note: Historical trip data will be preserved in the system.
+                    Note: All drivers will be unassigned from this vehicle.
                   </p>
                 )}
               </div>
@@ -111,7 +124,7 @@ export default function DeleteClientModal({
         {!dependencies?.canDelete && dependencies && (
           <Card className="p-3 bg-(--warning)/10 border-(--warning)">
             <p className="text-sm text-(--text-secondary)">
-              Complete all active trips for this client before deleting.
+              Complete or reassign active trips before deleting this vehicle.
             </p>
           </Card>
         )}
@@ -123,7 +136,7 @@ export default function DeleteClientModal({
 
           <Button
             variant="danger"
-            onClick={() => onConfirm(client._id)}
+            onClick={() => onConfirm(vehicle._id)}
             disabled={loading || (dependencies && !dependencies.canDelete)}
           >
             {loading ? "Checking..." : "Delete"}

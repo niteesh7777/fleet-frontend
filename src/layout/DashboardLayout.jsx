@@ -12,7 +12,12 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { FiLogOut, FiZap } from "react-icons/fi";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import NotificationCenter from "../components/NotificationCenter";
-import { isAdmin, isOwnerOrAdmin, getDisplayRole } from "../utils/roleUtils";
+import {
+  isAdmin,
+  isOwnerOrAdmin,
+  getDisplayRole,
+  canAccessFeature,
+} from "../utils/roleUtils";
 
 const DashboardLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -23,14 +28,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    try {
-      await api.post("/auth/logout"); // backend clears cookie
-    } catch (error) {
-      console.log("Logout error:", error);
-      // Even if backend fails, continue with local logout
-    }
-
-    logout(); // clear Zustand + localStorage
+    await logout(); // This now handles API call + state clearing
     navigate("/login"); // redirect
   };
 
@@ -90,9 +88,7 @@ const DashboardLayout = () => {
             label="Dashboard"
           />
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "vehicles") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/vehicles"
@@ -101,9 +97,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "drivers") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/drivers"
@@ -112,9 +106,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "liveTracking") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/drivers/live-tracking"
@@ -123,16 +115,16 @@ const DashboardLayout = () => {
             />
           )}
 
-          <SidebarItem
-            collapsed={collapsed}
-            to="/dashboard/trips"
-            icon={<MdRoute size={20} />}
-            label="Trips"
-          />
+          {canAccessFeature(user, "trips") && (
+            <SidebarItem
+              collapsed={collapsed}
+              to="/dashboard/trips"
+              icon={<MdRoute size={20} />}
+              label="Trips"
+            />
+          )}
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "clients") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/clients"
@@ -141,9 +133,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "routes") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/routes"
@@ -152,9 +142,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "maintenance") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/maintenance"
@@ -163,9 +151,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {["company_owner", "company_admin", "company_manager"].includes(
-            user?.companyRole
-          ) && (
+          {canAccessFeature(user, "workflow") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/workflow"
@@ -174,7 +160,7 @@ const DashboardLayout = () => {
             />
           )}
 
-          {["company_owner", "company_admin"].includes(user?.companyRole) && (
+          {canAccessFeature(user, "adminPanel") && (
             <SidebarItem
               collapsed={collapsed}
               to="/dashboard/admin"

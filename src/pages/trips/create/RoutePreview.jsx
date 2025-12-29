@@ -38,6 +38,8 @@ export default function RoutePreview({
   geometry,
   distanceKm,
   durationMin,
+  isCalculating,
+  routeError,
 }) {
   const polylinePositions = geometry?.length
     ? geometry
@@ -69,22 +71,36 @@ export default function RoutePreview({
             Route Preview
           </h2>
           <p className="text-sm text-(--text-secondary)">
-            Visualize distance and travel estimate
+            {isCalculating
+              ? "Calculating route..."
+              : "Visualize distance and travel estimate"}
           </p>
         </div>
         <div className="flex items-center gap-4 text-sm text-(--text-secondary)">
           <span className="flex items-center gap-1">
             <FiTrendingUp />
-            {distanceKm > 0 ? `${distanceKm.toFixed(1)} km` : "--"}
+            {isCalculating
+              ? "..."
+              : distanceKm > 0
+                ? `${distanceKm.toFixed(1)} km`
+                : "--"}
           </span>
           <span className="flex items-center gap-1">
             <FiClock />
-            {durationMin > 0
-              ? `${Math.round(durationMin / 60)}h ${Math.round(durationMin % 60)}m`
-              : "--"}
+            {isCalculating
+              ? "..."
+              : durationMin > 0
+                ? `${Math.round(durationMin / 60)}h ${Math.round(durationMin % 60)}m`
+                : "--"}
           </span>
         </div>
       </div>
+
+      {routeError && (
+        <div className="mb-4 p-3 bg-[var(--danger)]/10 border border-[var(--danger)] rounded-lg">
+          <p className="text-sm text-[var(--danger)]">{routeError}</p>
+        </div>
+      )}
 
       <div className="flex-1 rounded-xl overflow-hidden border border-(--border-primary)">
         <MapContainer

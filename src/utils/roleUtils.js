@@ -127,12 +127,43 @@ export const canAccessFeature = (user, feature) => {
     maintenance: isAdmin(user),
     workflow: isAdmin(user),
     analytics: isAdmin(user),
+    liveTracking: isAdmin(user),
     adminPanel: isOwnerOrAdmin(user),
     userManagement: isOwnerOrAdmin(user),
     companySettings: isOwner(user),
     trips: true, // All users can access trips (but with different views)
     profile: true, // All users can access profile
+    dashboard: true, // All users can access dashboard
   };
 
   return featurePermissions[feature] || false;
+};
+
+/**
+ * Get permissions object for a user
+ * @param {Object} user - User object with companyRole
+ * @returns {Object} - Object with permission flags
+ */
+export const getUserPermissions = (user) => {
+  return {
+    canManageVehicles: isAdmin(user),
+    canManageDrivers: isAdmin(user),
+    canManageClients: isAdmin(user),
+    canManageRoutes: isAdmin(user),
+    canManageMaintenance: isAdmin(user),
+    canManageWorkflows: isAdmin(user),
+    canViewAnalytics: isAdmin(user),
+    canAccessAdminPanel: isOwnerOrAdmin(user),
+    canManageUsers: isOwnerOrAdmin(user),
+    canManageCompany: isOwner(user),
+    canViewTrips: true,
+    canCreateTrips: isAdmin(user),
+    canEditTrips: isAdmin(user),
+    canDeleteTrips: isAdmin(user),
+    canViewOwnTrips: isDriver(user),
+    canUpdateTripProgress: isDriver(user),
+    isDriver: isDriver(user),
+    isAdmin: isAdmin(user),
+    isOwnerOrAdmin: isOwnerOrAdmin(user),
+  };
 };

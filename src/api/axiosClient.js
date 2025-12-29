@@ -13,32 +13,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const state = useAuthStore.getState();
-    const token = state.token;
-
-    // Endpoints that don't require authentication
-    const publicEndpoints = [
-      "/auth/login",
-      "/auth/register",
-      "/auth/refresh",
-      "/platform/auth/signup",
-    ];
-    const isPublicEndpoint = publicEndpoints.some((endpoint) =>
-      config.url?.startsWith(endpoint)
-    );
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else if (!isPublicEndpoint && state.user) {
-      // Warn only if user is logged in but token is missing for protected endpoints
-      console.warn(
-        "[API] No token available for protected request:",
-        config.url,
-        "User:",
-        state.user?.name
-      );
-    }
-
+    // No need to manually set Authorization header
+    // Backend will extract access token from httpOnly cookie
+    // withCredentials: true ensures cookies are sent with requests
     return config;
   },
   (error) => Promise.reject(error)
@@ -66,13 +43,17 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    console.warn("[API] 401 Error - Attempting token refresh", {
-      url: originalRequest.url,
-      hasToken: !!useAuthStore.getState().token,
-    });
+    // CRITICAL: Skip retry logic for logout and refresh endpoints to prevent infinite loops
+    const isLogoutRequest = originalRequest.url?.includes("/auth/logout");
+    const isRefreshRequest = originalRequest.url?.includes("/auth/refresh");
+    const skipAuthRefresh = originalRequest.skipAuthRefresh;
+
+    if (isLogoutRequest || isRefreshRequest || skipAuthRefresh) {
+      return Promise.reject(error);
+    }
 
     if (originalRequest._retry) {
-      useAuthStore.getState().logout();
+      useAuthStore.getState().logout(false); // Don't show toast - we'll show unauthorized error
       showUnauthorizedError();
       return Promise.reject(error);
     }
@@ -80,19 +61,10 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      const refreshResponse = await api.post("/auth/refresh");
-      const newAccessToken = refreshResponse.data.data.accessToken; // ✅ Fixed: correct path
-
-      useAuthStore.getState().setToken(newAccessToken);
-      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
+      await api.post("/auth/refresh");
       return api(originalRequest);
     } catch (refreshError) {
-      console.error(
-        "[API] Token refresh failed:",
-        refreshError.response?.data?.message
-      );
-      useAuthStore.getState().logout();
+      useAuthStore.getState().logout(false); // Don't show toast - we'll show unauthorized error
       showUnauthorizedError();
       return Promise.reject(refreshError);
     }

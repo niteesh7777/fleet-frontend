@@ -44,7 +44,7 @@ export default function RouteMapModal({ isOpen, onClose, onSubmit }) {
 
     // Also check immediately
     const state = useAuthStore.getState();
-    if (state.user || state.token) {
+    if (state.user) {
       setStoreReady(true);
     }
 

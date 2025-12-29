@@ -6,7 +6,7 @@ import Overview from "./pages/dashboard/Overview";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleGuard from "./components/RoleGuard";
 import Vehicles from "./pages/vehicles/Vehicles";
-import Drivers from "./pages/drivers/Drivers";
+import DriversPaginated from "./pages/drivers/DriversPaginated";
 import LiveTracking from "./pages/drivers/LiveTracking";
 import Trips from "./pages/trips/Trips";
 import CreateTrip from "./pages/trips/CreateTrip";
@@ -63,7 +63,7 @@ function App() {
                     "company_manager",
                   ]}
                 >
-                  <Drivers />
+                  <DriversPaginated />
                 </RoleGuard>
               }
             />

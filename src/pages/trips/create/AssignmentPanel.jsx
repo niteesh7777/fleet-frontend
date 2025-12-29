@@ -17,6 +17,7 @@ export default function AssignmentPanel({
   suggestedVehicle,
   onDriverChange,
   onVehicleChange,
+  errors = {},
 }) {
   return (
     <Card className="space-y-6">
@@ -115,12 +116,16 @@ export default function AssignmentPanel({
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <label className="text-sm font-medium text-(--text-secondary) mb-1 block">
-            {mode === "auto" ? "Driver (editable)" : "Driver"}
+            {mode === "auto" ? "Driver (editable)" : "Driver *"}
           </label>
           <select
             value={selectedDriverId || ""}
             onChange={(event) => onDriverChange(event.target.value)}
-            className="w-full bg-(--bg-secondary) border border-(--border-primary) text-(--text-primary) rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent"
+            className={`w-full bg-(--bg-secondary) border ${
+              errors.driverId
+                ? "border-[var(--danger)]"
+                : "border-(--border-primary)"
+            } text-(--text-primary) rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent`}
           >
             <option value="">Select available driver</option>
             {drivers.map((driver) => (
@@ -129,15 +134,24 @@ export default function AssignmentPanel({
               </option>
             ))}
           </select>
+          {errors.driverId && (
+            <p className="text-xs text-[var(--danger)] mt-1">
+              {errors.driverId}
+            </p>
+          )}
         </div>
         <div>
           <label className="text-sm font-medium text-(--text-secondary) mb-1 block">
-            {mode === "auto" ? "Vehicle (editable)" : "Vehicle"}
+            {mode === "auto" ? "Vehicle (editable)" : "Vehicle *"}
           </label>
           <select
             value={selectedVehicleId || ""}
             onChange={(event) => onVehicleChange(event.target.value)}
-            className="w-full bg-(--bg-secondary) border border-(--border-primary) text-(--text-primary) rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent"
+            className={`w-full bg-(--bg-secondary) border ${
+              errors.vehicleId
+                ? "border-[var(--danger)]"
+                : "border-(--border-primary)"
+            } text-(--text-primary) rounded-lg py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-(--primary) focus:border-transparent`}
           >
             <option value="">Select available vehicle</option>
             {vehicles.map((vehicle) => (
@@ -146,6 +160,11 @@ export default function AssignmentPanel({
               </option>
             ))}
           </select>
+          {errors.vehicleId && (
+            <p className="text-xs text-[var(--danger)] mt-1">
+              {errors.vehicleId}
+            </p>
+          )}
         </div>
       </div>
     </Card>

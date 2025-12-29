@@ -18,12 +18,15 @@ export default function LocationAutocomplete({
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    setQuery(value?.label || "");
-  }, [value?.label]);
+    if (value?.label !== query) {
+      setQuery(value?.label || "");
+    }
+  }, [value]);
 
   useEffect(() => {
     if (!query || query.length < 3) {
       setResults([]);
+      setOpen(false);
       return;
     }
 
@@ -56,17 +59,20 @@ export default function LocationAutocomplete({
           lng: Number(item.lon),
         }));
         setResults(mapped);
-        setOpen(mapped.length > 0);
+        if (mapped.length > 0) {
+          setOpen(true);
+        }
       } catch (error) {
         console.error(`Failed to fetch suggestions for ${label}`, error);
         setResults([]);
+        setOpen(false);
       } finally {
         setLoading(false);
       }
     }, 300);
 
     return () => clearTimeout(debounceRef.current);
-  }, [label, query]);
+  }, [query]);
 
   const handleSelect = (location) => {
     onChange?.(location);

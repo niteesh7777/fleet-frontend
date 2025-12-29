@@ -7,45 +7,56 @@ export const useAuthStore = create(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
       isInitialized: false,
+      isLoggingOut: false,
 
       setUser: (user) => set({ user }),
-      setToken: (token) => set({ token }),
       setInitialized: (isInitialized) => set({ isInitialized }),
 
-      logout: () => {
-        set({ user: null, token: null, isInitialized: true });
-        showLogoutSuccess();
+      logout: async (showToast = true) => {
+        const state = get();
+
+        // Prevent recursive logout calls
+        if (state.isLoggingOut) {
+          return;
+        }
+
+        set({ isLoggingOut: true });
+
+        // Clear state immediately (security first)
+        set({ user: null, isInitialized: true });
+
+        // Try to call backend logout to clear httpOnly cookies (best effort)
+        try {
+          await api.post("/auth/logout", {}, { skipAuthRefresh: true });
+        } catch (error) {
+          // Silently fail - state is already cleared
+        }
+
+        set({ isLoggingOut: false });
+
+        if (showToast) {
+          showLogoutSuccess();
+        }
       },
 
-      // Initialize auth state - attempt token refresh if user exists but no token
+      // Initialize auth state - attempt token refresh if user exists
       initializeAuth: async () => {
         const state = get();
         if (state.isInitialized) return;
 
-        // Token is now persisted in localStorage, so it should be available after rehydration
-        // Only try to refresh if user exists but still no token (shouldn't happen now)
-        if (state.user && !state.token) {
+        // If user exists in localStorage, verify session is still valid
+        if (state.user) {
           try {
             const response = await api.post("/auth/refresh");
-
             if (response.data?.success) {
-              set({
-                token: response.data.data.accessToken,
-                isInitialized: true,
-              });
+              set({ isInitialized: true });
               return;
             }
           } catch (error) {
-            console.log(
-              "Auto-refresh failed:",
-              error.response?.data?.message || error.message
-            );
+            // Session expired or invalid
           }
-
-          // If refresh fails, clear user and redirect to login
-          set({ user: null, token: null, isInitialized: true });
+          set({ user: null, isInitialized: true });
           showSessionExpired();
         } else {
           set({ isInitialized: true });
@@ -56,18 +67,12 @@ export const useAuthStore = create(
     {
       name: "auth-storage", // localStorage key
       partialize: (state) => ({
-        // Store token in localStorage despite XSS concerns - needed for persistent auth
-        // In production, use HTTP-only cookies instead
-        token: state.token, // ✅ Store token for persistent sessions
+        // Only store user info - tokens are in httpOnly cookies (XSS-safe)
         user: state.user, // ✅ Safe to persist
         // isInitialized is not persisted - always starts false
       }),
-      onRehydrateStorage: () => (state) => {
-        // After rehydration completes, mark as initialized
-        if (state) {
-          state.isInitialized = true;
-        }
-      },
+      // Don't set isInitialized in onRehydrateStorage
+      // Let ProtectedRoute call initializeAuth() to verify session
     }
   )
 );
