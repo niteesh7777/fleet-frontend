@@ -12,6 +12,7 @@ export default function AddVehicleModal({ open, onClose, onSubmit }) {
     year: new Date().getFullYear(),
     capacity: "",
     fuelType: "diesel",
+    type: "Truck",
     status: "available",
   });
 
@@ -106,6 +107,24 @@ export default function AddVehicleModal({ open, onClose, onSubmit }) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
+              Vehicle Type
+            </label>
+            <select
+              name="type"
+              value={form.type}
+              onChange={update}
+              className="w-full px-3 py-2 bg-[var(--bg-elevated)] border border-[var(--border-primary)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent text-[var(--text-primary)]"
+            >
+              <option value="Truck">Truck</option>
+              <option value="Mini Truck">Mini Truck</option>
+              <option value="Trailer">Trailer</option>
+              <option value="Van">Van</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">
               Fuel Type
             </label>
             <select
@@ -121,6 +140,7 @@ export default function AddVehicleModal({ open, onClose, onSubmit }) {
               <option value="cng">CNG</option>
             </select>
           </div>
+        </div>
 
           <div>
             <label className="text-sm font-medium text-[var(--text-secondary)] mb-1 block">

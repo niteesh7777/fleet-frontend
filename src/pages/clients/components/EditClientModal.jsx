@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { validateClientForm } from "../../../utils/validation";
 import toast from "react-hot-toast";
 
@@ -6,22 +6,27 @@ export default function EditClientModal({ open, onClose, client, onSubmit }) {
   // Build the initial form from client
   const buildInitial = () => ({
     name: client?.name || "",
-    email: client?.email || "",
-    phone: client?.phone || "",
+    email: client?.contact?.email || "",
+    phone: client?.contact?.phone || "",
     street: client?.address?.street || "",
     city: client?.address?.city || "",
     state: client?.address?.state || "",
     pincode: client?.address?.pincode || "",
-    gstNumber: client?.gstNumber || "",
-    contactPersonName: client?.contactPerson?.name || "",
-    contactPersonPhone: client?.contactPerson?.phone || "",
-    contactPersonEmail: client?.contactPerson?.email || "",
+    gstNumber: client?.gstNo || "",
+    contactPersonName: client?.contact?.person || "",
+    contactPersonPhone: client?.contact?.phone || "",
+    contactPersonEmail: client?.contact?.email || "",
     creditLimit: client?.creditLimit || "",
     paymentTerms: client?.paymentTerms || "",
   });
 
   // Initialize state
   const [form, setForm] = useState(buildInitial);
+
+  // Reset form when client changes
+  useEffect(() => {
+    setForm(buildInitial());
+  }, [client]);
 
   if (!open || !client) return null;
 
@@ -54,22 +59,18 @@ export default function EditClientModal({ open, onClose, client, onSubmit }) {
       return;
     }
 
+    // Build address string as expected by backend (single string)
+    const address = `${form.street}, ${form.city}, ${form.state} - ${form.pincode}`;
+
     const payload = {
       name: form.name,
-      email: form.email,
-      phone: form.phone,
-      address: {
-        street: form.street,
-        city: form.city,
-        state: form.state,
-        pincode: form.pincode,
-      },
-      gstNumber: form.gstNumber,
-      contactPerson: {
-        name: form.contactPersonName,
+      contact: {
+        person: form.contactPersonName,
         phone: form.contactPersonPhone,
         email: form.contactPersonEmail,
       },
+      address,
+      gstNo: form.gstNumber,
       creditLimit: Number(form.creditLimit),
       paymentTerms: form.paymentTerms,
     };

@@ -4,13 +4,15 @@ import { FiPlus, FiSearch } from "react-icons/fi";
 
 import ClientsTable from "./components/ClientsTable";
 import AddClientModal from "./components/AddClientModal";
+import EditClientModal from "./components/EditClientModal";
 import DeleteClientModal from "./components/DeleteClientModal";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import LoadingSkeleton from "../../components/ui/LoadingSkeleton";
 
 export default function Clients() {
-  const { clients, loading, createClient, deleteClient } = useClients();
+  const { clients, loading, createClient, updateClient, deleteClient } =
+    useClients();
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(null);
@@ -75,7 +77,12 @@ export default function Clients() {
         onConfirm={deleteClient}
       />
 
-      {/* EditClientModal will be added next */}
+      <EditClientModal
+        open={showEdit}
+        onClose={() => setShowEdit(false)}
+        client={selected}
+        onSubmit={updateClient}
+      />
     </div>
   );
 }

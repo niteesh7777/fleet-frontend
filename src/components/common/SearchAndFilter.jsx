@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { FiSearch, FiFilter, FiX } from "react-icons/fi";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
@@ -12,13 +12,19 @@ export default function SearchAndFilter({
   searchPlaceholder = "Search...",
   searchValue = "",
   filters = [],
-  activeFilters = {},
+  activeFilters: initialActiveFilters = {},
   className = "",
   showFilterPanel = false,
   onToggleFilterPanel,
 }) {
   const [localSearchValue, setLocalSearchValue] = useState(searchValue);
+  const [activeFilters, setActiveFilters] = useState(initialActiveFilters);
   const [showFilters, setShowFilters] = useState(showFilterPanel);
+
+  // Update activeFilters when initialActiveFilters prop changes
+  useEffect(() => {
+    setActiveFilters(initialActiveFilters);
+  }, [initialActiveFilters]);
 
   // Handle search input
   const handleSearchChange = useCallback(
@@ -54,21 +60,25 @@ export default function SearchAndFilter({
   // Handle filter change
   const handleFilterChange = useCallback(
     (filterKey, value) => {
-      const newFilters = { ...activeFilters };
+      setActiveFilters((prev) => {
+        const newFilters = { ...prev };
 
-      if (value === "" || value === null || value === undefined) {
-        delete newFilters[filterKey];
-      } else {
-        newFilters[filterKey] = value;
-      }
+        if (value === "" || value === null || value === undefined) {
+          delete newFilters[filterKey];
+        } else {
+          newFilters[filterKey] = value;
+        }
 
-      onFilter?.(newFilters);
+        onFilter?.(newFilters);
+        return newFilters;
+      });
     },
-    [activeFilters, onFilter]
+    [onFilter]
   );
 
   // Clear all filters
   const clearAllFilters = useCallback(() => {
+    setActiveFilters({});
     onFilter?.({});
   }, [onFilter]);
 

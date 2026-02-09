@@ -32,6 +32,7 @@ export default function Vehicles() {
     changeLimit,
     updateParams,
     refresh,
+    params,
   } = usePagination({
     apiCall: vehicleApi.getAllPaginated,
     defaultLimit: 10,
@@ -67,13 +68,17 @@ export default function Vehicles() {
       label: "Vehicle Type",
       type: "select",
       options: [
-        { value: "truck", label: "Truck" },
-        { value: "van", label: "Van" },
-        { value: "pickup", label: "Pickup" },
-        { value: "trailer", label: "Trailer" },
+        { value: "Truck", label: "Truck" },
+        { value: "Mini Truck", label: "Mini Truck" },
+        { value: "Trailer", label: "Trailer" },
+        { value: "Van", label: "Van" },
+        { value: "Other", label: "Other" },
       ],
     },
   ];
+
+  // Extract filter params from pagination params
+  const { page, limit, ...filterParams } = params;
 
   // Handle search and filter
   const handleSearch = (searchTerm) => {
@@ -117,7 +122,10 @@ export default function Vehicles() {
           onSearch={handleSearch}
           onFilter={handleFilter}
           searchPlaceholder="Search by vehicle number, model, type..."
+          searchValue={filterParams.search || ""}
           filters={filterConfig}
+          activeFilters={filterParams}
+          showFilterPanel={true}
         />
       </Card>
 
