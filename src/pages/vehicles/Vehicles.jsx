@@ -86,7 +86,18 @@ export default function Vehicles() {
   };
 
   const handleFilter = (filters) => {
-    updateParams(filters);
+    // If filters is empty, explicitly clear all filter keys
+    if (Object.keys(filters).length === 0) {
+      // Get all filter keys from filterConfig
+      const filterKeys = filterConfig.map((f) => f.key);
+      const clearedFilters = {};
+      filterKeys.forEach((key) => {
+        clearedFilters[key] = undefined;
+      });
+      updateParams(clearedFilters);
+    } else {
+      updateParams(filters);
+    }
   };
 
   // Driver assignment handlers
@@ -492,10 +503,10 @@ function EditVehicleModal({ open, onClose, onSuccess, vehicle }) {
   const [type, setType] = useState(vehicle?.type || "");
   const [capacityKg, setCapacityKg] = useState(vehicle?.capacityKg || "");
   const [policyNumber, setPolicyNumber] = useState(
-    vehicle?.insurance?.policyNumber || ""
+    vehicle?.insurance?.policyNumber || "",
   );
   const [expiryDate, setExpiryDate] = useState(
-    vehicle?.insurance?.expiryDate?.slice(0, 10) || ""
+    vehicle?.insurance?.expiryDate?.slice(0, 10) || "",
   );
 
   const [loading, setLoading] = useState(false);

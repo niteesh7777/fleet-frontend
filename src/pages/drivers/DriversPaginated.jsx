@@ -70,7 +70,18 @@ export default function DriversPaginated() {
   };
 
   const handleFilter = (filters) => {
-    updateParams(filters);
+    // If filters is empty, explicitly clear all filter keys
+    if (Object.keys(filters).length === 0) {
+      // Get all filter keys from filterConfig
+      const filterKeys = filterConfig.map((f) => f.key);
+      const clearedFilters = {};
+      filterKeys.forEach((key) => {
+        clearedFilters[key] = undefined;
+      });
+      updateParams(clearedFilters);
+    } else {
+      updateParams(filters);
+    }
   };
 
   // CRUD handlers
@@ -122,7 +133,7 @@ export default function DriversPaginated() {
     const selectedIds = bulkSelection.selectedIds;
     if (
       window.confirm(
-        `Delete ${selectedIds.length} selected driver(s)? This action cannot be undone.`
+        `Delete ${selectedIds.length} selected driver(s)? This action cannot be undone.`,
       )
     ) {
       try {
@@ -130,13 +141,13 @@ export default function DriversPaginated() {
 
         if (result.deleted.length > 0) {
           toast.success(
-            `Successfully deleted ${result.deleted.length} driver(s)`
+            `Successfully deleted ${result.deleted.length} driver(s)`,
           );
         }
 
         if (result.failed.length > 0) {
           toast.error(
-            `Failed to delete ${result.failed.length} driver(s): ${result.failed.map((f) => f.reason).join(", ")}`
+            `Failed to delete ${result.failed.length} driver(s): ${result.failed.map((f) => f.reason).join(", ")}`,
           );
         }
 
@@ -172,7 +183,7 @@ export default function DriversPaginated() {
   }
 
   const hasActiveFilters = Object.keys(updateParams).some(
-    (key) => key !== "page" && key !== "limit"
+    (key) => key !== "page" && key !== "limit",
   );
   const hasSearchQuery = pagination?.search || false;
 

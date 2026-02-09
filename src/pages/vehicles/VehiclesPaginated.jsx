@@ -86,7 +86,18 @@ export default function Vehicles() {
   };
 
   const handleFilter = (filters) => {
-    updateParams(filters);
+    // If filters is empty, explicitly clear all filter keys
+    if (Object.keys(filters).length === 0) {
+      // Get all filter keys from filterConfig
+      const filterKeys = filterConfig.map((f) => f.key);
+      const clearedFilters = {};
+      filterKeys.forEach((key) => {
+        clearedFilters[key] = undefined;
+      });
+      updateParams(clearedFilters);
+    } else {
+      updateParams(filters);
+    }
   };
 
   // Driver assignment handlers
@@ -182,7 +193,6 @@ export default function Vehicles() {
         </Button>
       </div>
 
-      {/* Search and Filter */}
       <Card className="mb-6">
         <SearchAndFilter
           onSearch={handleSearch}
@@ -192,14 +202,13 @@ export default function Vehicles() {
         />
       </Card>
 
-      {/* Bulk Action Toolbar */}
       <BulkActionToolbar
         selectedCount={bulkSelection.selectedCount}
         onDelete={async () => {
           const selectedIds = bulkSelection.selectedIds;
           if (
             window.confirm(
-              `Delete ${selectedIds.length} selected vehicle(s)? This action cannot be undone.`
+              `Delete ${selectedIds.length} selected vehicle(s)? This action cannot be undone.`,
             )
           ) {
             try {
@@ -207,13 +216,13 @@ export default function Vehicles() {
 
               if (result.deleted.length > 0) {
                 toast.success(
-                  `Successfully deleted ${result.deleted.length} vehicle(s)`
+                  `Successfully deleted ${result.deleted.length} vehicle(s)`,
                 );
               }
 
               if (result.failed.length > 0) {
                 toast.error(
-                  `Failed to delete ${result.failed.length} vehicle(s): ${result.failed.map((f) => f.reason).join(", ")}`
+                  `Failed to delete ${result.failed.length} vehicle(s): ${result.failed.map((f) => f.reason).join(", ")}`,
                 );
               }
 
@@ -221,7 +230,7 @@ export default function Vehicles() {
               refresh();
             } catch (error) {
               toast.error(
-                error.response?.data?.message || "Bulk delete failed"
+                error.response?.data?.message || "Bulk delete failed",
               );
             }
           }
@@ -234,7 +243,6 @@ export default function Vehicles() {
         onClearSelection={bulkSelection.clearSelection}
       />
 
-      {/* Vehicles Table */}
       <Card>
         {loading ? (
           <LoadingSkeleton count={5} />
@@ -373,7 +381,6 @@ export default function Vehicles() {
               </table>
             </div>
 
-            {/* Pagination Footer */}
             <TableFooter>
               <PaginationControls
                 currentPage={pagination.page}
@@ -388,7 +395,6 @@ export default function Vehicles() {
         )}
       </Card>
 
-      {/* Modals */}
       <AddVehicleModal
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
@@ -415,7 +421,6 @@ export default function Vehicles() {
         vehicle={vehicleToDelete}
       />
 
-      {/* Driver Assignment Modals */}
       <SelectDriverModal
         isOpen={assignDriverModalOpen}
         onClose={() => setAssignDriverModalOpen(false)}
@@ -423,7 +428,6 @@ export default function Vehicles() {
         onAssignmentSuccess={handleAssignmentSuccess}
       />
 
-      {/* Drivers Panel Modal */}
       <Modal
         isOpen={showDriversPanel}
         onClose={() => setShowDriversPanel(false)}

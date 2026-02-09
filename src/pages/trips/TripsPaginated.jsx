@@ -68,7 +68,23 @@ export default function TripsPaginated() {
   };
 
   const handleFilter = (filters) => {
-    updateParams(filters);
+    // If filters is empty, explicitly clear all filter keys
+    if (Object.keys(filters).length === 0) {
+      // Get all filter keys from filterConfig (including nested keys for dateRange)
+      const filterKeys = filterConfig.flatMap((f) => {
+        if (f.type === "dateRange") {
+          return [`${f.key}_from`, `${f.key}_to`];
+        }
+        return [f.key];
+      });
+      const clearedFilters = {};
+      filterKeys.forEach((key) => {
+        clearedFilters[key] = undefined;
+      });
+      updateParams(clearedFilters);
+    } else {
+      updateParams(filters);
+    }
   };
 
   // CRUD handlers

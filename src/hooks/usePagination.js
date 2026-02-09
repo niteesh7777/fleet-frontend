@@ -36,6 +36,17 @@ export function usePagination({
           ...customParams,
         };
 
+        // Remove undefined, null, and empty string values
+        Object.keys(queryParams).forEach((key) => {
+          if (
+            queryParams[key] === undefined ||
+            queryParams[key] === null ||
+            queryParams[key] === ""
+          ) {
+            delete queryParams[key];
+          }
+        });
+
         const response = await apiCall(queryParams);
 
         if (response?.items && response?.pagination) {
@@ -62,7 +73,7 @@ export function usePagination({
         setLoading(false);
       }
     },
-    [apiCall, pagination.page, pagination.limit, params]
+    [apiCall, pagination.page, pagination.limit, params],
   );
 
   // Update pagination and fetch data
@@ -76,7 +87,7 @@ export function usePagination({
         setPagination((prev) => ({ ...prev, page }));
       }
     },
-    [pagination.page, pagination.totalPages]
+    [pagination.page, pagination.totalPages],
   );
 
   const changeLimit = useCallback(
@@ -89,7 +100,7 @@ export function usePagination({
         }));
       }
     },
-    [pagination.limit]
+    [pagination.limit],
   );
 
   const nextPage = useCallback(() => {
@@ -105,10 +116,16 @@ export function usePagination({
   }, [pagination.hasPrev, pagination.page, goToPage]);
 
   const updateParams = useCallback((newParams) => {
-    setParams((prev) => ({
-      ...prev,
-      ...newParams,
-    }));
+    setParams((prev) => {
+      const updated = { ...prev, ...newParams };
+      // Remove keys with undefined values
+      Object.keys(updated).forEach((key) => {
+        if (updated[key] === undefined) {
+          delete updated[key];
+        }
+      });
+      return updated;
+    });
     // Reset to first page when params change
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, []);
